@@ -1,60 +1,67 @@
-import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase-server'
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-// GET — obtener todos los trades
 export async function GET() {
-    const { data, error } = await supabase
-        .from('trades')
-        .select('*')
-        .order('trade_date', { ascending: false })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+  const { data, error } = await supabase
+    .from('trades')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('trade_date', { ascending: false })
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 }
 
-// POST — crear nuevo trade
 export async function POST(req: NextRequest) {
-    const body = await req.json()
-    const { data, error } = await supabase
-        .from('trades')
-        .insert([body])
-        .select()
-        .single()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data, { status: 201 })
+  const body = await req.json()
+  const { data, error } = await supabase
+    .from('trades')
+    .insert([{ ...body, user_id: user.id }])
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data, { status: 201 })
 }
 
-// PUT — editar trade existente
 export async function PUT(req: NextRequest) {
-    const body = await req.json()
-    const { id, ...fields } = body
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data, error } = await supabase
-        .from('trades')
-        .update(fields)
-        .eq('id', id)
-        .select()
-        .single()
+  const { id, ...fields } = await req.json()
+  const { data, error } = await supabase
+    .from('trades')
+    .update(fields)
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .select()
+    .single()
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json(data)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data)
 }
 
-// DELETE — eliminar trade
 export async function DELETE(req: NextRequest) {
-    const { id } = await req.json()
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { error } = await supabase
-        .from('trades')
-        .delete()
-        .eq('id', id)
+  const { id } = await req.json()
+  const { error } = await supabase
+    .from('trades')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ success: true })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
 }
