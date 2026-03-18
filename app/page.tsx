@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Trade } from '@/types/trade'
 import { calcMetrics, formatMoney, formatPnl } from '@/lib/calculations'
 import TradeModal from '@/components/TradeModal'
+import EquityCurve from '@/components/EquityCurve'
 
 export default function Dashboard() {
   const [trades, setTrades]       = useState<Trade[]>([])
@@ -39,50 +40,6 @@ export default function Dashboard() {
 
   const now = new Date()
   const monthYear = now.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
-
-  // Equity curve SVG
-  const renderEquity = () => {
-    const pts = m.equityPoints
-    if (pts.length < 2) return (
-      <text x="250" y="80" fill="#555568" fontSize="12" fontFamily="var(--font)" textAnchor="middle">
-        Agregá trades para ver la curva
-      </text>
-    )
-    const W = 500, H = 150, pad = 15
-    const minV = Math.min(...pts), maxV = Math.max(...pts), range = maxV - minV || 1
-    const xs = pts.map((_, i) => pad + (i / (pts.length - 1)) * (W - 2 * pad))
-    const ys = pts.map(v => H - pad - ((v - minV) / range) * (H - 2 * pad))
-    const area = `M${xs[0]},${ys[0]} ` + xs.slice(1).map((x, i) => `L${x},${ys[i + 1]}`).join(' ') + ` L${xs[xs.length-1]},${H} L${xs[0]},${H} Z`
-    const line = `M${xs[0]},${ys[0]} ` + xs.slice(1).map((x, i) => `L${x},${ys[i + 1]}`).join(' ')
-    const col = pts[pts.length - 1] >= pts[0] ? '#00d68f' : '#ff4d6d'
-    const fv = (v: number) => '$' + v.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    const lastTrade = [...trades].sort((a, b) =>
-      new Date(b.trade_date ?? b.created_at).getTime() - new Date(a.trade_date ?? a.created_at).getTime()
-    )[0]
-    return (
-      <>
-        <defs>
-          <linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={col} stopOpacity="0.25" />
-            <stop offset="100%" stopColor={col} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <line x1="0" y1={H * .25} x2={W} y2={H * .25} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-        <line x1="0" y1={H * .5}  x2={W} y2={H * .5}  stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-        <line x1="0" y1={H * .75} x2={W} y2={H * .75} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-        <path d={area} fill="url(#eg)" />
-        <path d={line} fill="none" stroke={col} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <circle cx={xs[xs.length-1]} cy={ys[ys.length-1]} r="4" fill={col} />
-        <circle cx={xs[xs.length-1]} cy={ys[ys.length-1]} r="7" fill={col} opacity="0.2" />
-        <text x="4" y={H - 4} fill="#555568" fontSize="10" fontFamily="var(--font)">Inicio</text>
-        <text x={W - 4} y={H - 4} fill="#555568" fontSize="10" fontFamily="var(--font)" textAnchor="end">
-          {lastTrade?.trade_date?.slice(0, 10) ?? ''}
-        </text>
-        <text x="4" y="12" fill="#555568" fontSize="10" fontFamily="var(--font)">{fv(maxV)}</text>
-        <text x="4" y={H - 16} fill="#555568" fontSize="10" fontFamily="var(--font)">{fv(minV)}</text>
-      </>
-    )
-  }
 
   // Donut
   const circ = 239
@@ -155,10 +112,8 @@ export default function Dashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 24 }}>
           <div className="card">
             <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>Curva de equity</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>Evolución del patrimonio</div>
-            <svg width="100%" viewBox="0 0 500 150" preserveAspectRatio="none" style={{ height: 160 }}>
-              {renderEquity()}
-            </svg>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>Evolución del patrimonio</div>
+            <EquityCurve trades={trades} />
           </div>
 
           <div className="card">
