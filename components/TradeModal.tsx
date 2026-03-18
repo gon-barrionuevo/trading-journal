@@ -29,6 +29,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [saving, setSaving]   = useState(false)
   const [toast, setToast]     = useState<string | null>(null)
+  const [pnlRaw, setPnlRaw]   = useState<string>('')
 
   useEffect(() => {
     if (!open) return
@@ -45,9 +46,11 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
         rr:         editTrade.rr,
       })
       setImagePreview(editTrade.image_url)
+      setPnlRaw(String(editTrade.pnl ?? ''))
     } else {
       setForm({ ...emptyForm(), patrimony: defaultPatrimony != null ? parseFloat(defaultPatrimony.toFixed(2)) : null })
       setImagePreview(null)
+      setPnlRaw('')
     }
     setImageFile(null)
   }, [open, editTrade, defaultPatrimony])
@@ -76,7 +79,8 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
 
   const handleSubmit = async () => {
     if (!form.asset.trim()) { showToast('Ingresá el activo'); return }
-    if (form.pnl === 0 && !editTrade) { showToast('Ingresá la ganancia o pérdida'); return }
+    const parsedPnl = parseFloat(pnlRaw)
+    if (pnlRaw.trim() === '' || isNaN(parsedPnl)) { showToast('Ingresá la ganancia o pérdida'); return }
 
     setSaving(true)
     try {
@@ -85,7 +89,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
         imageUrl = await uploadImage(imageFile)
       }
 
-      const payload = { ...form, image_url: imageUrl }
+      const payload = { ...form, pnl: parsedPnl, image_url: imageUrl }
 
       if (editTrade) {
         await fetch('/api/trades', {
@@ -229,11 +233,17 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
               </label>
               <input
                 className="form-input"
-                type="number"
-                step="any"
-                value={form.pnl === 0 && !editTrade ? '' : form.pnl}
-                onChange={e => setForm(f => ({ ...f, pnl: parseFloat(e.target.value) || 0 }))}
-                placeholder="Ej: +120 si ganaste · -45 si perdiste"
+                type="text"
+                inputMode="decimal"
+                value={pnlRaw}
+                onChange={e => {
+                  const val = e.target.value
+                  // Allow: digits, dot, comma, leading minus, in-progress decimals like "0." or "-0."
+                  if (val === '' || val === '-' || /^-?\d*[.,]?\d*$/.test(val)) {
+                    setPnlRaw(val.replace(',', '.'))
+                  }
+                }}
+                placeholder="Ej: +120 si ganaste · -45 si perdiste · 0 para Break Even"
               />
             </div>
 

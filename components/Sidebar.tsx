@@ -7,6 +7,7 @@ const navItems = [
   { href: '/',          label: 'Dashboard',     icon: '◈' },
   { href: '/journal',   label: 'Journal',        icon: '◎' },
   { href: '/stats',     label: 'Estadísticas',   icon: '◇' },
+  { href: '/mindset',   label: 'Mindset',        icon: '🧠' },
 ]
 
 const configItems = [
