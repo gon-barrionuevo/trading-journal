@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { Trade } from '@/types/trade'
 import { calcMetrics, formatMoney, formatPnl } from '@/lib/calculations'
 import TradeModal from '@/components/TradeModal'
@@ -11,14 +11,15 @@ export default function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editTrade, setEditTrade] = useState<Trade | null>(null)
 
-  const fetchTrades = useCallback(async () => {
+  const fetchTrades = async () => {
     const res = await fetch('/api/trades')
     const data = await res.json()
     setTrades(Array.isArray(data) ? data : [])
     setLoading(false)
-  }, [])
+  }
 
-  useEffect(() => { fetchTrades() }, [fetchTrades])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchTrades() }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar este trade?')) return
