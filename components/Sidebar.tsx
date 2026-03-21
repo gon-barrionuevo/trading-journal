@@ -7,10 +7,11 @@ import { createClient } from '@/lib/supabase-browser'
 import type { User } from '@supabase/supabase-js'
 
 const navItems = [
-  { href: '/',         label: 'Dashboard',    icon: '📊' },
-  { href: '/journal',  label: 'Journal',       icon: '🕯️' },
-  { href: '/stats',    label: 'Estadísticas',  icon: '📈' },
-  { href: '/mindset',  label: 'Mindset',       icon: '🧠' },
+  { href: '/',             label: 'Dashboard',   icon: '📊' },
+  { href: '/journal',      label: 'Journal',      icon: '🕯️' },
+  { href: '/stats',        label: 'Estadísticas', icon: '📈' },
+  { href: '/mindset',      label: 'Mindset',      icon: '🧠' },
+  { href: '/estrategia',   label: 'Estrategia',   icon: '📌' },
 ]
 
 const configItems = [
