@@ -47,8 +47,8 @@ export default function Login() {
             alignItems: 'center', justifyContent: 'center',
             fontWeight: 700, fontSize: 20, color: '#fff',
             marginBottom: 16,
-          }}>Tr</div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>TrackR</div>
+          }}>Tf</div>
+          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Tradefolio</div>
           <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Trading Journal</div>
         </div>
 

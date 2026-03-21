@@ -69,9 +69,9 @@ export default function Sidebar() {
           width: 32, height: 32, background: 'var(--accent)',
           borderRadius: 8, display: 'flex', alignItems: 'center',
           justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#fff',
-        }}>Tr</div>
+        }}>Tf</div>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 16 }}>TrackR</div>
+          <div style={{ fontWeight: 600, fontSize: 16 }}>Tradefolio</div>
           <div style={{ fontSize: 11, color: 'var(--muted)' }}>Trading Journal</div>
         </div>
       </div>
