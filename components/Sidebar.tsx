@@ -4,24 +4,14 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase-browser'
+import { useT } from '@/lib/lang-context'
 import type { User } from '@supabase/supabase-js'
-
-const navItems = [
-  { href: '/',             label: 'Dashboard',   icon: '📊' },
-  { href: '/journal',      label: 'Journal',      icon: '🕯️' },
-  { href: '/stats',        label: 'Estadísticas', icon: '📈' },
-  { href: '/mindset',      label: 'Mindset',      icon: '🧠' },
-  { href: '/estrategia',   label: 'Estrategia',   icon: '📌' },
-]
-
-const configItems = [
-  { href: '/settings', label: 'Configuración', icon: '⚙️' },
-]
 
 export default function Sidebar() {
   const pathname = usePathname()
   const router   = useRouter()
   const supabase = createClient()
+  const { t, locale, setLocale } = useT()
   const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
@@ -40,6 +30,18 @@ export default function Sidebar() {
 
   const displayName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'Trader'
   const initials    = displayName.charAt(0).toUpperCase()
+
+  const navItems = [
+    { href: '/',           label: t('nav_dashboard'), icon: '📊' },
+    { href: '/journal',    label: t('nav_journal'),   icon: '🕯️' },
+    { href: '/stats',      label: t('nav_stats'),     icon: '📈' },
+    { href: '/mindset',    label: t('nav_mindset'),   icon: '🧠' },
+    { href: '/estrategia', label: t('nav_strategy'),  icon: '📌' },
+  ]
+
+  const configItems = [
+    { href: '/settings', label: t('nav_settings'), icon: '⚙️' },
+  ]
 
   const navLinkStyle = (href: string): React.CSSProperties => ({
     display: 'flex', alignItems: 'center', gap: 10,
@@ -81,7 +83,7 @@ export default function Sidebar() {
       <nav style={{ padding: '16px 12px', flex: 1 }}>
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, color: 'var(--muted2)', textTransform: 'uppercase', letterSpacing: 1, padding: '0 8px', marginBottom: 6, fontWeight: 500 }}>
-            Main
+            {t('nav_main')}
           </div>
           {navItems.map(item => (
             <Link key={item.href} href={item.href} style={navLinkStyle(item.href)}>
@@ -93,7 +95,7 @@ export default function Sidebar() {
 
         <div>
           <div style={{ fontSize: 11, color: 'var(--muted2)', textTransform: 'uppercase', letterSpacing: 1, padding: '0 8px', marginBottom: 6, fontWeight: 500 }}>
-            Config
+            {t('nav_config')}
           </div>
           {configItems.map(item => (
             <Link key={item.href} href={item.href} style={navLinkStyle(item.href)}>
@@ -104,8 +106,32 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Bottom — user info + logout */}
+      {/* Bottom */}
       <div style={{ padding: '12px', borderTop: '1px solid var(--border)' }}>
+
+        {/* Language toggle */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 10, padding: '0 2px' }}>
+          {(['es', 'en'] as const).map(lang => (
+            <button
+              key={lang}
+              onClick={() => setLocale(lang)}
+              style={{
+                flex: 1, padding: '5px',
+                borderRadius: 'var(--radius-xs)',
+                border: `1px solid ${locale === lang ? 'rgba(124,106,255,0.3)' : 'var(--border)'}`,
+                background: locale === lang ? 'rgba(124,106,255,0.12)' : 'transparent',
+                color: locale === lang ? 'var(--accent2)' : 'var(--muted)',
+                fontSize: 12, fontWeight: locale === lang ? 600 : 400,
+                cursor: 'pointer', fontFamily: 'var(--font)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {lang.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        {/* User info */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '8px 10px', borderRadius: 'var(--radius-xs)', marginBottom: 6,
@@ -126,6 +152,7 @@ export default function Sidebar() {
           </div>
         </div>
 
+        {/* Logout */}
         <button
           onClick={handleLogout}
           style={{
@@ -146,7 +173,7 @@ export default function Sidebar() {
             e.currentTarget.style.borderColor = 'var(--border)'
           }}
         >
-          <span>↩</span> Cerrar sesión
+          <span>↩</span> {t('auth_logout')}
         </button>
       </div>
     </aside>
