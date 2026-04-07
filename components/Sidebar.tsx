@@ -12,7 +12,8 @@ export default function Sidebar() {
   const router   = useRouter()
   const supabase = createClient()
   const { t, locale, setLocale } = useT()
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser]         = useState<User | null>(null)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
@@ -21,6 +22,15 @@ export default function Sidebar() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  // Cerrar drawer al navegar
+  useEffect(() => { setMobileOpen(false) }, [pathname])
+
+  // Bloquear scroll del body cuando el drawer está abierto
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -53,18 +63,17 @@ export default function Sidebar() {
     transition: 'all 0.15s', textDecoration: 'none',
   })
 
-  return (
+  const sidebarContent = (
     <aside style={{
       width: 220, minWidth: 220,
       background: 'var(--surface)',
       borderRight: '1px solid var(--border)',
       display: 'flex', flexDirection: 'column',
-      position: 'sticky', top: 0, height: '100vh',
+      height: '100%',
     }}>
-
       {/* Logo */}
       <div style={{
-        padding: '24px 20px 20px',
+        padding: '20px 20px 18px',
         borderBottom: '1px solid var(--border)',
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
@@ -72,15 +81,29 @@ export default function Sidebar() {
           width: 32, height: 32, background: 'var(--accent)',
           borderRadius: 8, display: 'flex', alignItems: 'center',
           justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#fff',
+          flexShrink: 0,
         }}>Tf</div>
-        <div>
+        <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600, fontSize: 16 }}>Tradefolio</div>
           <div style={{ fontSize: 11, color: 'var(--muted)' }}>Trading Journal</div>
         </div>
+        {/* Close button — solo mobile */}
+        <button
+          className="sidebar-close-btn"
+          onClick={() => setMobileOpen(false)}
+          style={{
+            display: 'none',
+            background: 'none', border: 'none',
+            color: 'var(--muted)', fontSize: 22,
+            cursor: 'pointer', lineHeight: 1, padding: 4,
+          }}
+        >
+          ×
+        </button>
       </div>
 
       {/* Nav */}
-      <nav style={{ padding: '16px 12px', flex: 1 }}>
+      <nav style={{ padding: '16px 12px', flex: 1, overflowY: 'auto' }}>
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, color: 'var(--muted2)', textTransform: 'uppercase', letterSpacing: 1, padding: '0 8px', marginBottom: 6, fontWeight: 500 }}>
             {t('nav_main')}
@@ -108,7 +131,6 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div style={{ padding: '12px', borderTop: '1px solid var(--border)' }}>
-
         {/* Language toggle */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 10, padding: '0 2px' }}>
           {(['es', 'en'] as const).map(lang => (
@@ -177,5 +199,60 @@ export default function Sidebar() {
         </button>
       </div>
     </aside>
+  )
+
+  return (
+    <>
+      {/* ── Desktop sidebar (sticky) ── */}
+      <div className="sidebar-desktop" style={{ position: 'sticky', top: 0, height: '100vh', flexShrink: 0 }}>
+        {sidebarContent}
+      </div>
+
+      {/* ── Mobile: hamburger button en el top bar ── */}
+      <button
+        className="sidebar-hamburger"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Abrir menú"
+        style={{
+          display: 'none',
+          position: 'fixed', top: 14, left: 14, zIndex: 90,
+          background: 'var(--surface)', border: '1px solid var(--border2)',
+          borderRadius: 'var(--radius-xs)', padding: '8px 10px',
+          cursor: 'pointer', color: 'var(--text)', fontSize: 16,
+          lineHeight: 1,
+        }}
+      >
+        ☰
+      </button>
+
+      {/* ── Mobile: overlay backdrop ── */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{
+            display: 'none',
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 95,
+          }}
+          className="sidebar-backdrop"
+        />
+      )}
+
+      {/* ── Mobile: drawer ── */}
+      <div
+        className="sidebar-drawer"
+        style={{
+          display: 'none',
+          position: 'fixed', top: 0, left: 0, bottom: 0,
+          width: 260, zIndex: 100,
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.25s ease',
+        }}
+      >
+        {sidebarContent}
+      </div>
+    </>
   )
 }
