@@ -24,12 +24,13 @@ const emptyForm = (): NewTrade => ({
 })
 
 export default function TradeModal({ open, onClose, onSaved, editTrade, defaultPatrimony }: Props) {
-  const [form, setForm]       = useState<NewTrade>(emptyForm())
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [form, setForm]             = useState<NewTrade>(emptyForm())
+  const [imageFile, setImageFile]   = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [saving, setSaving]   = useState(false)
-  const [toast, setToast]     = useState<string | null>(null)
-  const [pnlRaw, setPnlRaw]   = useState<string>('')
+  const [saving, setSaving]         = useState(false)
+  const [toast, setToast]           = useState<string | null>(null)
+  const [pnlRaw, setPnlRaw]         = useState<string>('')
+  const [pctAutoCalc, setPctAutoCalc] = useState(false) // indica si el % fue calculado automáticamente
 
   useEffect(() => {
     if (!open) return
@@ -53,6 +54,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
       setPnlRaw('')
     }
     setImageFile(null)
+    setPctAutoCalc(false)
   }, [open, editTrade, defaultPatrimony])
 
   const showToast = (msg: string) => {
@@ -75,6 +77,50 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     if (!res.ok) return null
     const { url } = await res.json()
     return url
+  }
+
+  // ── Manejador de PnL con cálculo automático de % ──────────────────────────
+  const handlePnlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+
+    // Solo permite: dígitos, punto, coma, signo menos al inicio
+    if (val !== '' && val !== '-' && !/^-?\d*[.,]?\d*$/.test(val)) return
+
+    const normalized = val.replace(',', '.')
+    setPnlRaw(normalized)
+
+    const parsed = parseFloat(normalized)
+
+    // Auto-cálculo solo si es pérdida (negativo) y hay patrimonio cargado
+    if (!isNaN(parsed) && parsed < 0 && form.patrimony && form.patrimony > 0) {
+      const autoPct = parseFloat((Math.abs(parsed) / form.patrimony * 100).toFixed(2))
+      setForm(f => ({ ...f, pct: autoPct }))
+      setPctAutoCalc(true)
+    } else {
+      // Si borra el valor o pone positivo, limpia el flag pero no toca el % manual
+      if (isNaN(parsed) || parsed >= 0) {
+        setPctAutoCalc(false)
+      }
+    }
+  }
+
+  // Si el usuario edita el patrimonio mientras hay una pérdida cargada, recalcular
+  const handlePatrimonyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const patrimony = e.target.value ? parseFloat(e.target.value) : null
+    setForm(f => ({ ...f, patrimony }))
+
+    const parsedPnl = parseFloat(pnlRaw)
+    if (!isNaN(parsedPnl) && parsedPnl < 0 && patrimony && patrimony > 0) {
+      const autoPct = parseFloat((Math.abs(parsedPnl) / patrimony * 100).toFixed(2))
+      setForm(f => ({ ...f, patrimony, pct: autoPct }))
+      setPctAutoCalc(true)
+    }
+  }
+
+  // Si el usuario edita manualmente el %, desactivar el auto-cálculo
+  const handlePctChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPctAutoCalc(false)
+    setForm(f => ({ ...f, pct: e.target.value ? parseFloat(e.target.value) : null }))
   }
 
   const handleSubmit = async () => {
@@ -134,6 +180,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
         {/* Modal */}
         <div
           onClick={e => e.stopPropagation()}
+          className="modal-mobile-full"
           style={{
             background: 'var(--surface)',
             border: '1px solid var(--border2)',
@@ -195,55 +242,69 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
               </div>
             </div>
 
-            {/* % Riesgo */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
-                % capital arriesgado <span style={{ color: 'var(--muted2)', fontWeight: 400 }}>— riesgo real</span>
-              </label>
-              <input
-                className="form-input"
-                type="number"
-                step="0.1"
-                value={form.pct ?? ''}
-                onChange={e => setForm(f => ({ ...f, pct: e.target.value ? parseFloat(e.target.value) : null }))}
-                placeholder="Ej: 1 = arriesgás 1% de tu capital"
-              />
-            </div>
-
-            {/* Patrimonio */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
-                Patrimonio antes del trade <span style={{ color: 'var(--green)', fontWeight: 400 }}>— auto</span>
-              </label>
-              <input
-                className="form-input"
-                type="number"
-                step="0.01"
-                value={form.patrimony ?? ''}
-                onChange={e => setForm(f => ({ ...f, patrimony: e.target.value ? parseFloat(e.target.value) : null }))}
-                placeholder="Se carga automáticamente"
-                style={{ color: 'var(--muted)' }}
-              />
-            </div>
-
-            {/* Ganancia/Pérdida — full width */}
+            {/* Ganancia/Pérdida — full width, ANTES del % para que el cálculo tenga sentido visualmente */}
             <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
-                Ganancia / Pérdida (USD) * <span style={{ color: 'var(--muted2)', fontWeight: 400 }}>— cuánto ganaste o perdiste</span>
+                Ganancia / Pérdida (USD) *
+                <span style={{ color: 'var(--muted2)', fontWeight: 400 }}> — cuánto ganaste o perdiste</span>
               </label>
               <input
                 className="form-input"
                 type="text"
                 inputMode="decimal"
                 value={pnlRaw}
-                onChange={e => {
-                  const val = e.target.value
-                  // Allow: digits, dot, comma, leading minus, in-progress decimals like "0." or "-0."
-                  if (val === '' || val === '-' || /^-?\d*[.,]?\d*$/.test(val)) {
-                    setPnlRaw(val.replace(',', '.'))
-                  }
-                }}
+                onChange={handlePnlChange}
                 placeholder="Ej: +120 si ganaste · -45 si perdiste · 0 para Break Even"
+              />
+            </div>
+
+            {/* % Riesgo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ color: 'var(--muted)' }}>% capital arriesgado</span>
+                {pctAutoCalc && (
+                  <span style={{
+                    fontSize: 10, padding: '2px 6px', borderRadius: 4,
+                    background: 'rgba(255,77,109,0.12)', color: 'var(--red)',
+                    fontWeight: 600,
+                  }}>
+                    auto
+                  </span>
+                )}
+              </label>
+              <input
+                className="form-input"
+                type="number"
+                step="0.01"
+                value={form.pct ?? ''}
+                onChange={handlePctChange}
+                placeholder="Ej: 1 = arriesgás 1% de tu capital"
+                style={{
+                  borderColor: pctAutoCalc ? 'rgba(255,77,109,0.4)' : undefined,
+                  transition: 'border-color 0.2s',
+                }}
+              />
+              {pctAutoCalc && form.patrimony && (
+                <div style={{ fontSize: 11, color: 'var(--muted2)', marginTop: -2 }}>
+                  Calculado: |{pnlRaw}| ÷ {form.patrimony} × 100
+                </div>
+              )}
+            </div>
+
+            {/* Patrimonio */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
+                Patrimonio antes del trade
+                <span style={{ color: 'var(--green)', fontWeight: 400 }}> — auto</span>
+              </label>
+              <input
+                className="form-input"
+                type="number"
+                step="0.01"
+                value={form.patrimony ?? ''}
+                onChange={handlePatrimonyChange}
+                placeholder="Se carga automáticamente"
+                style={{ color: 'var(--muted)' }}
               />
             </div>
 
@@ -255,6 +316,17 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
                 type="datetime-local"
                 value={form.trade_date ?? ''}
                 onChange={e => setForm(f => ({ ...f, trade_date: e.target.value }))}
+              />
+            </div>
+
+            {/* R:R */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>R:R</label>
+              <input
+                className="form-input"
+                value={form.rr ?? ''}
+                onChange={e => setForm(f => ({ ...f, rr: e.target.value || null }))}
+                placeholder="Ej: 1:2"
               />
             </div>
 
@@ -308,7 +380,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
 
       {/* Toast */}
       {toast && (
-        <div className={`toast show`} style={{ zIndex: 200 }}>
+        <div className="toast show" style={{ zIndex: 200 }}>
           <span>✓</span><span>{toast}</span>
         </div>
       )}
