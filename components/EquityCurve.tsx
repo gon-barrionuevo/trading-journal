@@ -144,7 +144,7 @@ export default function EquityCurve({ trades }: Props) {
 
   if (pts.length < 2) {
     return (
-      <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555568', fontSize: 13 }}>
+      <div className="h-50 flex items-center justify-center text-(#555568) text-sm">
         Agregá trades para ver la curva
       </div>
     )
@@ -153,31 +153,31 @@ export default function EquityCurve({ trades }: Props) {
   return (
     <div>
       {/* Badges: inicial / actual / % */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>Inicial</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 500, color: 'var(--text)' }}>
+      <div className="flex gap-3 mb-4 flex-wrap">
+        <div className="flex flex-col">
+          <span className="text-[11px] text-(--muted) mb-0.5">Inicial</span>
+          <span className="font-mono text-sm font-medium text-(--text)">
             ${initial.toFixed(2)}
           </span>
         </div>
-        <div style={{ width: 1, background: 'var(--border)', margin: '0 4px' }} />
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>Actual</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 500, color }}>
+        <div className="w-px bg-(--border) mx-1" />
+        <div className="flex flex-col">
+          <span className="text-[11px] text-(--muted) mb-0.5">Actual</span>
+          <span className="font-mono text-sm font-medium" style={{ color }}>
             ${current.toFixed(2)}
           </span>
         </div>
-        <div style={{ width: 1, background: 'var(--border)', margin: '0 4px' }} />
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 2 }}>Retorno</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 500, color }}>
+        <div className="w-px bg-(--border) mx-1" />
+        <div className="flex flex-col">
+          <span className="text-[11px] text-(--muted) mb-0.5">Retorno</span>
+          <span className="font-mono text-sm font-medium" style={{ color }}>
             {pctChange >= 0 ? '+' : ''}{pctChange.toFixed(2)}%
           </span>
         </div>
       </div>
 
       {/* Chart */}
-      <div style={{ position: 'relative', height: 180 }}>
+      <div className="relative h-45">
         <canvas ref={canvasRef} />
       </div>
     </div>

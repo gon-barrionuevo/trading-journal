@@ -13,8 +13,8 @@ type MindsetEntry = {
   entry_date: string
 }
 
-const HAND = '"Bradley Hand", "Segoe Script", "Lucida Handwriting", cursive'
 const LINE = 52
+const HAND_CLASS = 'font-["Bradley_Hand","Segoe_Script","Lucida_Handwriting",cursive]'
 
 function fmtDate(d: string, locale: string) {
   return new Date(d).toLocaleDateString(locale === 'es' ? 'es-AR' : 'en-US', { day: 'numeric', month: 'short' })
@@ -37,9 +37,27 @@ export default function Mindset() {
   const thisYear = new Date().getFullYear()
 
   const CATEGORIES = [
-    { key: 'positiva'  as Category, label: t('mindset_positive'), color: '#00d68f', bg: 'rgba(0,214,143,0.12)',   border: 'rgba(0,214,143,0.3)'   },
-    { key: 'limitante' as Category, label: t('mindset_limiting'), color: '#ff4d6d', bg: 'rgba(255,77,109,0.10)',  border: 'rgba(255,77,109,0.3)'  },
-    { key: 'operando'  as Category, label: t('mindset_operating'),color: '#a091ff', bg: 'rgba(124,106,255,0.12)', border: 'rgba(124,106,255,0.3)' },
+    {
+      key: 'positiva' as Category,
+      label: t('mindset_positive'),
+      textClass: 'text-green',
+      bgClass: 'bg-green-bg',
+      borderClass: 'border-green/30',
+    },
+    {
+      key: 'limitante' as Category,
+      label: t('mindset_limiting'),
+      textClass: 'text-red',
+      bgClass: 'bg-red-bg',
+      borderClass: 'border-red/30',
+    },
+    {
+      key: 'operando' as Category,
+      label: t('mindset_operating'),
+      textClass: 'text-accent2',
+      bgClass: 'bg-[rgba(124,106,255,0.12)]',
+      borderClass: 'border-[rgba(124,106,255,0.3)]',
+    },
   ]
 
   useEffect(() => {
@@ -85,11 +103,11 @@ export default function Mindset() {
   const cat      = CATEGORIES.find(c => c.key === activeTab)!
 
   const MarginLine = () => (
-    <div style={{ position: 'absolute', left: 72, top: 0, bottom: 0, width: 1.5, background: 'rgba(196,150,150,0.5)', pointerEvents: 'none' }} />
+    <div className="absolute left-18 top-0 bottom-0 w-px bg-[rgba(196,150,150,0.5)] pointer-events-none" />
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+    <div className="flex flex-col flex-1 overflow-hidden">
       <div className="page-header">
         <div>
           <div className="page-title">{t('mindset_title')}</div>
@@ -97,67 +115,101 @@ export default function Mindset() {
         </div>
       </div>
 
-      <div style={{ padding: '20px 28px 0', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', gap: 16 }}>
+      <div className="pt-5 px-7 pb-0 flex flex-col flex-1 overflow-hidden gap-4">
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flexShrink: 0 }}>
+        <div className="flex gap-2 flex-wrap shrink-0">
           {CATEGORIES.map(c => (
-            <button key={c.key} onClick={() => setActiveTab(c.key)} style={{ padding: '7px 18px', borderRadius: 20, border: `1px solid ${activeTab === c.key ? c.border : 'rgba(255,255,255,0.08)'}`, background: activeTab === c.key ? c.bg : 'transparent', color: activeTab === c.key ? c.color : '#555568', fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s' }}>
+            <button
+              key={c.key}
+              onClick={() => setActiveTab(c.key)}
+              className={`px-4.5 py-1.75 rounded-full border text-sm font-medium cursor-pointer transition-all duration-200 ${
+                activeTab === c.key
+                  ? `${c.borderClass} ${c.bgClass} ${c.textClass}`
+                  : 'border-white/8 bg-transparent text-muted2'
+              }`}
+            >
               {c.label}
             </button>
           ))}
         </div>
 
         {/* Notebook */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f7f2e8', borderRadius: '0 10px 0 0', boxShadow: '-4px 0 0 #c4b090, -8px 0 0 #ddd0b0', overflow: 'hidden' }}>
+        <div className="flex-1 flex flex-col bg-[#f7f2e8] rounded-tr-[10px] shadow-[-4px_0_0_#c4b090,-8px_0_0_#ddd0b0] overflow-hidden">
           {/* Spiral */}
-          <div style={{ display: 'flex', alignItems: 'center', padding: '9px 0', background: '#1e1c2a', flexShrink: 0 }}>
+          <div className="flex items-center py-2.25 bg-[#1e1c2a] shrink-0">
             {Array.from({ length: 32 }).map((_, i) => (
-              <div key={i} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#0d0b15', border: '2.5px solid #5a5075', boxSizing: 'border-box' }} />
+              <div key={i} className="flex-1 flex justify-center">
+                <div className="w-4.5 h-4.5 rounded-full bg-[#0d0b15] border-[2.5px] border-[#5a5075] box-border" />
               </div>
             ))}
           </div>
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 32px 0 88px', height: LINE, borderBottom: '1.5px solid rgba(160,185,220,0.45)', position: 'relative', flexShrink: 0 }}>
+          <div className="flex items-center justify-between pr-8 pl-22 h-13 border-b border-[rgba(160,185,220,0.45)] relative shrink-0">
             <MarginLine />
-            <span style={{ fontFamily: HAND, fontSize: 22, fontWeight: 600, color: '#2a2035' }}>{cat.label}</span>
-            <span style={{ fontFamily: HAND, fontSize: 14, color: '#9a8070' }}>{thisYear}</span>
+            <span className={`${HAND_CLASS} text-[22px] font-semibold text-[#2a2035]`}>{cat.label}</span>
+            <span className={`${HAND_CLASS} text-sm text-[#9a8070]`}>{thisYear}</span>
           </div>
 
           {/* Scrollable */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div style={{ padding: '16px 88px', fontFamily: HAND, fontSize: 17, color: '#b0a090' }}>{t('mindset_loading')}</div>
+              <div className={`${HAND_CLASS} px-22 py-4 text-[17px] text-[#b0a090]`}>{t('mindset_loading')}</div>
             ) : filtered.length === 0 ? (
-              <div style={{ display: 'flex', minHeight: LINE, borderBottom: '1.5px solid rgba(160,185,220,0.45)', position: 'relative' }}>
+              <div className="flex min-h-13 border-b border-[rgba(160,185,220,0.45)] relative">
                 <MarginLine />
-                <div style={{ width: 72, minWidth: 72, borderRight: '1.5px solid rgba(196,150,150,0.4)' }} />
-                <div style={{ padding: '16px 24px', fontFamily: HAND, fontSize: 18, color: '#c0aa90', fontStyle: 'italic' }}>{t('mindset_empty')}</div>
+                <div className="w-18 min-w-18 border-r border-[rgba(196,150,150,0.4)]" />
+                <div className={`${HAND_CLASS} px-6 py-4 text-lg text-[#c0aa90] italic`}>{t('mindset_empty')}</div>
               </div>
             ) : filtered.map(entry => (
-              <div key={entry.id} style={{ display: 'flex', position: 'relative', borderBottom: '1.5px solid rgba(160,185,220,0.45)', minHeight: LINE }}>
+              <div key={entry.id} className="group/entry flex relative border-b border-[rgba(160,185,220,0.45)] min-h-13">
                 <MarginLine />
-                <div style={{ width: 72, minWidth: 72, borderRight: '1.5px solid rgba(196,150,150,0.4)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: '14px 6px 0 8px' }}>
-                  <span style={{ fontFamily: HAND, fontSize: 12, color: '#b08070', lineHeight: 1 }}>{fmtDate(entry.entry_date, locale)}</span>
-                  {fmtYear(entry.entry_date) !== thisYear && <span style={{ fontFamily: HAND, fontSize: 10, color: '#c09080', marginTop: 2 }}>{fmtYear(entry.entry_date)}</span>}
+                <div className="w-18 min-w-18 border-r border-[rgba(196,150,150,0.4)] flex flex-col justify-start pt-3.5 pr-1.5 pb-0 pl-2">
+                  <span className={`${HAND_CLASS} text-xs text-[#b08070] leading-none`}>{fmtDate(entry.entry_date, locale)}</span>
+                  {fmtYear(entry.entry_date) !== thisYear && <span className={`${HAND_CLASS} text-[10px] text-[#c09080] mt-0.5`}>{fmtYear(entry.entry_date)}</span>}
                 </div>
-                <div style={{ flex: 1, padding: '14px 52px 14px 12px', position: 'relative' }}>
+                <div className="flex-1 py-3.5 pr-13 pl-3 relative">
                   {editId === entry.id ? (
                     <>
-                      <textarea autoFocus value={editText} onChange={e => { setEditText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }} onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleEditSave(entry.id); if (e.key === 'Escape') { setEditId(null); setEditText('') } }} style={{ width: '100%', background: 'rgba(255,255,255,0.6)', border: `1px solid ${cat.border}`, borderRadius: 6, outline: 'none', fontFamily: HAND, fontSize: 19, color: '#1a1530', lineHeight: '1.65', resize: 'none', padding: '6px 10px', overflow: 'hidden' }} />
-                      <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                        <button onClick={() => handleEditSave(entry.id)} style={{ fontFamily: 'var(--font)', fontSize: 11, padding: '3px 12px', background: cat.bg, border: `1px solid ${cat.border}`, color: cat.color, borderRadius: 4, cursor: 'pointer' }}>{t('strategy_save')}</button>
-                        <button onClick={() => { setEditId(null); setEditText('') }} style={{ fontFamily: 'var(--font)', fontSize: 11, padding: '3px 12px', background: 'transparent', border: '1px solid rgba(0,0,0,0.12)', color: '#9a8a7a', borderRadius: 4, cursor: 'pointer' }}>{t('strategy_cancel')}</button>
+                      <textarea
+                        autoFocus
+                        value={editText}
+                        onChange={e => { setEditText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
+                        onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleEditSave(entry.id); if (e.key === 'Escape') { setEditId(null); setEditText('') } }}
+                        className={`${HAND_CLASS} w-full bg-white/60 border ${cat.borderClass} rounded-xs outline-none text-[19px] text-[#1a1530] leading-[1.65] resize-none px-2.5 py-1.5 overflow-hidden`}
+                      />
+                      <div className="flex gap-2 mt-1.5">
+                        <button
+                          onClick={() => handleEditSave(entry.id)}
+                          className={`text-xs px-3 py-0.75 border rounded-[4px] cursor-pointer ${cat.bgClass} ${cat.borderClass} ${cat.textClass}`}
+                        >
+                          {t('strategy_save')}
+                        </button>
+                        <button
+                          onClick={() => { setEditId(null); setEditText('') }}
+                          className="text-xs px-3 py-0.75 bg-transparent border border-black/12 text-[#9a8a7a] rounded-[4px] cursor-pointer"
+                        >
+                          {t('strategy_cancel')}
+                        </button>
                       </div>
                     </>
                   ) : (
-                    <p style={{ fontFamily: HAND, fontSize: 19, color: '#1a1530', lineHeight: '1.65', margin: 0 }}>{entry.content}</p>
+                    <p className={`${HAND_CLASS} text-[19px] text-[#1a1530] leading-[1.65] m-0`}>{entry.content}</p>
                   )}
                   {editId !== entry.id && (
-                    <div style={{ position: 'absolute', top: 10, right: 8, display: 'flex', gap: 4, opacity: 0, transition: 'opacity 0.15s' }} onMouseEnter={e => (e.currentTarget.style.opacity = '1')} onMouseLeave={e => (e.currentTarget.style.opacity = '0')}>
-                      <button onClick={() => { setEditId(entry.id); setEditText(entry.content) }} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(124,106,255,0.12)', border: '1px solid rgba(124,106,255,0.25)', color: '#7c6aff', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✏️</button>
-                      <button onClick={() => handleDelete(entry.id)} style={{ width: 28, height: 28, borderRadius: 6, background: 'rgba(255,77,109,0.10)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🧹</button>
+                    <div className="absolute top-2.5 right-2 flex gap-1 opacity-0 transition-opacity duration-150 group-hover/entry:opacity-100 focus-within:opacity-100">
+                      <button
+                        onClick={() => { setEditId(entry.id); setEditText(entry.content) }}
+                        className="w-7 h-7 rounded-xs bg-[rgba(124,106,255,0.12)] border border-[rgba(124,106,255,0.25)] text-accent cursor-pointer text-sm flex items-center justify-center"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleDelete(entry.id)}
+                        className="w-7 h-7 rounded-xs bg-red-bg border border-red/20 text-red cursor-pointer text-sm flex items-center justify-center"
+                      >
+                        🧹
+                      </button>
                     </div>
                   )}
                 </div>
@@ -165,35 +217,50 @@ export default function Mindset() {
             ))}
 
             {/* New entry */}
-            <div style={{ display: 'flex', position: 'relative', borderBottom: '1.5px solid rgba(160,185,220,0.45)', minHeight: LINE }}>
+            <div className="flex relative border-b border-[rgba(160,185,220,0.45)] min-h-13">
               <MarginLine />
-              <div style={{ width: 72, minWidth: 72, borderRight: '1.5px solid rgba(196,150,150,0.4)', padding: '14px 6px 0 8px' }}>
-                <span style={{ fontFamily: HAND, fontSize: 12, color: '#b08070' }}>{today}</span>
+              <div className="w-18 min-w-18 border-r border-[rgba(196,150,150,0.4)] pt-3.5 pr-1.5 pb-0 pl-2">
+                <span className={`${HAND_CLASS} text-xs text-[#b08070]`}>{today}</span>
               </div>
-              <div style={{ flex: 1 }}>
-                <textarea value={newText} onChange={e => { setNewText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.max(LINE, e.target.scrollHeight) + 'px' }} onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAdd() }} placeholder={t('mindset_placeholder')} rows={1} style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', fontFamily: HAND, fontSize: 19, color: '#1a1530', lineHeight: '1.65', resize: 'none', minHeight: LINE, padding: '14px 32px 0 12px', overflow: 'hidden' }} />
+              <div className="flex-1">
+                <textarea
+                  value={newText}
+                  onChange={e => { setNewText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.max(LINE, e.target.scrollHeight) + 'px' }}
+                  onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAdd() }}
+                  placeholder={t('mindset_placeholder')}
+                  rows={1}
+                  className={`${HAND_CLASS} w-full bg-transparent border-none outline-none text-[19px] text-[#1a1530] leading-[1.65] resize-none min-h-13 pt-3.5 pr-8 pb-0 pl-3 overflow-hidden`}
+                />
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 32px 12px', borderBottom: '1.5px solid rgba(160,185,220,0.45)' }}>
-              <button onClick={handleAdd} disabled={saving || !newText.trim()} style={{ fontFamily: HAND, fontSize: 17, fontWeight: 600, color: saving || !newText.trim() ? '#b0a090' : cat.color, background: saving || !newText.trim() ? 'transparent' : cat.bg, border: `1px solid ${saving || !newText.trim() ? 'rgba(160,140,120,0.2)' : cat.border}`, borderRadius: 20, padding: '5px 20px', cursor: saving || !newText.trim() ? 'default' : 'pointer', transition: 'all 0.15s' }}>
+            <div className="flex justify-end px-8 pt-2.5 pb-3 border-b border-[rgba(160,185,220,0.45)]">
+              <button
+                onClick={handleAdd}
+                disabled={saving || !newText.trim()}
+                className={`${HAND_CLASS} text-[17px] font-semibold rounded-full px-5 py-1.25 border transition-all duration-150 ${
+                  saving || !newText.trim()
+                    ? 'text-[#b0a090] bg-transparent border-[rgba(160,140,120,0.2)] cursor-default'
+                    : `${cat.textClass} ${cat.bgClass} ${cat.borderClass} cursor-pointer`
+                }`}
+              >
                 {saving ? t('mindset_saving') : t('mindset_add')}
               </button>
             </div>
 
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} style={{ height: LINE, position: 'relative', borderBottom: '1.5px solid rgba(160,185,220,0.4)' }}><MarginLine /></div>
+              <div key={i} className="h-13 relative border-b border-[rgba(160,185,220,0.4)]"><MarginLine /></div>
             ))}
           </div>
         </div>
 
-        <div style={{ flexShrink: 0, padding: '8px 0 16px', textAlign: 'right' }}>
-          <span style={{ fontFamily: 'var(--font)', fontSize: 12, color: '#555568' }}>{t('mindset_hint')}</span>
+        <div className="shrink-0 pt-2 pb-4 text-right">
+          <span className="text-xs text-muted2">{t('mindset_hint')}</span>
         </div>
       </div>
 
       {toast && (
-        <div style={{ position: 'fixed', bottom: 24, right: 24, background: '#1a1a24', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '12px 18px', fontSize: 13, color: '#f0f0f5', display: 'flex', alignItems: 'center', gap: 8, zIndex: 200 }}>
+        <div className="toast show">
           <span>{toast}</span>
         </div>
       )}

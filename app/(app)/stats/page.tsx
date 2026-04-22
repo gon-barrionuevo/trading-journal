@@ -49,7 +49,7 @@ export default function Stats() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}>
+    <div className="flex flex-col flex-1 overflow-auto">
       <div className="page-header">
         <div>
           <div className="page-title">{t('stats_title')}</div>
@@ -62,20 +62,20 @@ export default function Stats() {
           <div className="empty-state"><div className="empty-sub">...</div></div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
+            <div className="grid grid-cols-3 gap-3.5 mb-6">
               {statCards.map((c, i) => (
                 <div key={i} className="card">
-                  <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 500, marginBottom: 6 }}>{c.label}</div>
-                  <div style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--mono)', margin: '6px 0 4px', color: c.color }}>{c.value}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>{c.sub}</div>
+                  <div className="text-[11px] text-(--muted) uppercase tracking-[0.8px] font-medium mb-1.5">{c.label}</div>
+                  <div className="text-7xl font-bold font-mono m-1.5 text-[28px]" style={{ color: c.color }}>{c.value}</div>
+                  <div className="text-[11px] text-(--muted)">{c.sub}</div>
                 </div>
               ))}
             </div>
 
-            <div className="card" style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{t('stats_pnl_chart')}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>{t('stats_pnl_sub')}</div>
-              <svg width="100%" viewBox="0 0 440 130" style={{ marginTop: 8 }}>
+            <div className="card mb-4">
+              <div className="text-[13px] font-medium mb-1">{t('stats_pnl_chart')}</div>
+              <div className="text-[12px] text-(--muted) mb-2">{t('stats_pnl_sub')}</div>
+              <svg width="100%" viewBox="0 0 440 130" className="mt-2">
                 {last10.length === 0 ? (
                   <text x="220" y="70" fill="#555568" fontSize="12" fontFamily="var(--font)" textAnchor="middle">{t('stats_no_data')}</text>
                 ) : (
@@ -99,12 +99,12 @@ export default function Stats() {
             </div>
 
             <div className="card">
-              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 12 }}>{t('stats_key')}</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+              <div className="text-[13px] font-medium mb-3">{t('stats_key')}</div>
+              <div className="grid grid-cols-4 gap-3">
                 {keyMetrics.map((km, i) => (
-                  <div key={i} style={{ textAlign: 'center', padding: 14, background: 'var(--surface2)', borderRadius: 'var(--radius-sm)' }}>
-                    <div style={{ fontSize: 20, fontWeight: 600, fontFamily: 'var(--mono)', color: km.color }}>{km.value}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{km.label}</div>
+                  <div key={i} className="text-center p-3.5 bg-(--surface2) rounded-lg">
+                    <div className="text-5xl font-bold font-mono text-xl" style={{ fontSize: 20, color: km.color }}>{km.value}</div>
+                    <div className="text-[11px] text-(--muted) mt-1">{km.label}</div>
                   </div>
                 ))}
               </div>

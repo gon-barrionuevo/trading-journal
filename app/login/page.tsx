@@ -32,37 +32,23 @@ export default function Login() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--bg)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 24,
-    }}>
-      <div style={{ width: '100%', maxWidth: 400 }}>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            width: 48, height: 48, background: 'var(--accent)',
-            borderRadius: 12, display: 'inline-flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: 20, color: '#fff',
-            marginBottom: 16,
-          }}>Tf</div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Tradefolio</div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Trading Journal</div>
+        <div className="text-center mb-10">
+          <div className="w-12 h-12 bg-accent rounded-xl inline-flex items-center justify-center font-bold text-xl text-white mb-4">Tf</div>
+          <div className="text-2xl font-semibold text-text">Tradefolio</div>
+          <div className="text-sm text-muted mt-1">Trading Journal</div>
         </div>
 
         {/* Card */}
-        <div style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--border2)',
-          borderRadius: 16, padding: 32,
-        }}>
-          <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 24 }}>Iniciar sesión</div>
+        <div className="bg-surface border border-border2 rounded-2xl p-8">
+          <div className="text-lg font-semibold mb-6">Iniciar sesión</div>
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Email</label>
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Email</label>
               <input
                 className="form-input"
                 type="email"
@@ -74,8 +60,8 @@ export default function Login() {
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Contraseña</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Contraseña</label>
               <input
                 className="form-input"
                 type="password"
@@ -88,29 +74,23 @@ export default function Login() {
             </div>
 
             {error && (
-              <div style={{
-                background: 'var(--red-bg)',
-                border: '1px solid rgba(255,77,109,0.3)',
-                borderRadius: 8, padding: '10px 14px',
-                fontSize: 13, color: 'var(--red)',
-              }}>
+              <div className="bg-red-bg border border-red/30 rounded-sm px-3.5 py-2.5 text-sm text-red">
                 {error}
               </div>
             )}
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary w-full justify-center mt-1"
               disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
             >
               {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </button>
           </form>
 
-          <div style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
+          <div className="mt-5 text-center text-sm text-muted">
             ¿No tenés cuenta?{' '}
-            <Link href="/register" style={{ color: 'var(--accent2)', textDecoration: 'none', fontWeight: 500 }}>
+            <Link href="/register" className="text-accent2 no-underline font-medium">
               Registrate
             </Link>
           </div>

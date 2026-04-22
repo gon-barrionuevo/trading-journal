@@ -44,64 +44,41 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
       {/* Overlay */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.82)',
-          backdropFilter: 'blur(6px)',
-          zIndex: 200,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '12px 8px',
-        }}
+        className="fixed inset-0 bg-black/82 backdrop-blur-sm z-50 flex items-center justify-center p-2"
       >
         {/* Modal */}
         <div
           onClick={e => e.stopPropagation()}
-          className="modal-mobile-full"
+          className="modal-mobile-full bg-(--surface) rounded-[18px] w-[680px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-32px)] overflow-y-auto flex flex-col"
           style={{
-            background: 'var(--surface)',
             border: `1px solid ${accentBorder}`,
-            borderRadius: 18,
-            width: 680,
-            maxWidth: 'calc(100vw - 24px)',
-            maxHeight: 'calc(100vh - 32px)',
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
           }}
         >
           {/* Header — sticky */}
-          <div style={{
-            padding: '16px 18px',
-            borderBottom: '1px solid var(--border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-            position: 'sticky', top: 0, background: 'var(--surface)', zIndex: 10,
-            borderRadius: '18px 18px 0 0',
-            flexWrap: 'wrap',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, textTransform: 'capitalize', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div className="p-4 border-b border-(--border) flex items-center justify-between gap-2.5 sticky top-0 bg-(--surface) z-10 rounded-t-[18px] flex-wrap">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <div className="min-w-0">
+                <div className="text-sm font-semibold capitalize whitespace-nowrap overflow-hidden text-ellipsis">
                   {dateLabel}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>
+                <div className="text-[11px] text-(--muted) mt-0.5">
                   {trades.length === 0
                     ? locale === 'es' ? 'Sin trades' : 'No trades'
                     : `${trades.length} trade${trades.length !== 1 ? 's' : ''}`}
                 </div>
               </div>
               {trades.length > 0 && (
-                <div style={{
-                  padding: '4px 10px', borderRadius: 8, flexShrink: 0,
-                  background: accentBg, border: `1px solid ${accentBorder}`,
-                  fontSize: 14, fontWeight: 700, color: accentColor,
-                  fontFamily: 'var(--mono)',
+                <div className="p-1 px-2.5 rounded text-sm font-bold font-mono flex-shrink-0" style={{
+                  background: accentBg,
+                  border: `1px solid ${accentBorder}`,
+                  color: accentColor,
                 }}>
                   {formatPnl(totalPnl)}
                 </div>
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+            <div className="flex gap-1.5 items-center flex-shrink-0">
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => { onClose(); setTimeout(onNewTrade, 120) }}
@@ -110,7 +87,7 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
               </button>
               <button
                 onClick={onClose}
-                style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 22, cursor: 'pointer', lineHeight: 1, padding: '0 4px', flexShrink: 0 }}
+                className="bg-none border-0 text-(--muted) text-2xl cursor-pointer leading-none p-0 px-1 flex-shrink-0"
               >
                 ×
               </button>
@@ -118,14 +95,14 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
           </div>
 
           {/* Body */}
-          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="p-4 flex flex-col gap-4">
             {trades.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--muted)' }}>
-                <div style={{ fontSize: 32, marginBottom: 10 }}>📅</div>
-                <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 6, color: 'var(--text)' }}>
+              <div className="text-center py-10 text-(--muted)">
+                <div className="text-4xl mb-2.5">📅</div>
+                <div className="text-sm font-medium mb-1.5 text-(--text)">
                   {locale === 'es' ? 'Sin trades este día' : 'No trades this day'}
                 </div>
-                <div style={{ fontSize: 12 }}>
+                <div className="text-xs">
                   {locale === 'es' ? 'Usá el botón de arriba para registrar uno' : 'Use the button above to log one'}
                 </div>
               </div>
@@ -144,29 +121,21 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
                 return (
                   <div
                     key={tr.id}
-                    style={{
-                      background: 'var(--surface2)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 12,
-                      overflow: 'hidden',
-                    }}
+                    className="bg-(--surface2) border border-(--border) rounded-3xl overflow-hidden"
                   >
                     {/* Trade # label si hay varios */}
                     {trades.length > 1 && (
-                      <div style={{ padding: '8px 14px 0', fontSize: 11, color: 'var(--muted2)', fontWeight: 500 }}>
+                      <div className="px-3.5 pt-2 text-[11px] text-(--muted2) font-medium">
                         Trade #{idx + 1}
                       </div>
                     )}
 
                     {/* ── Imagen del análisis — protagonista ── */}
                     <div
+                      className="w-full cursor-pointer relative overflow-hidden flex items-center justify-center"
                       style={{
-                        width: '100%',
                         height: tr.image_url ? 220 : 64,
                         background: imgBg,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: tr.image_url ? 'zoom-in' : 'default',
-                        position: 'relative', overflow: 'hidden',
                         marginTop: trades.length > 1 ? 8 : 0,
                       }}
                       onClick={() => tr.image_url && setLightbox(tr.image_url)}
@@ -176,57 +145,51 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
                           <img
                             src={tr.image_url}
                             alt="Análisis"
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            className="w-full h-full object-cover"
                           />
                           {/* Hint zoom */}
-                          <div style={{
-                            position: 'absolute', bottom: 8, right: 8,
-                            background: 'rgba(0,0,0,0.65)', borderRadius: 6,
-                            padding: '3px 8px', fontSize: 11, color: '#fff',
-                            display: 'flex', alignItems: 'center', gap: 4, pointerEvents: 'none',
-                          }}>
+                          <div className="absolute bottom-2 right-2 bg-black/65 rounded text-xs text-white flex items-center gap-1 px-2 py-0.75 pointer-events-none">
                             🔍 {locale === 'es' ? 'Ver análisis' : 'View analysis'}
                           </div>
                         </>
                       ) : (
-                        <div style={{ color: 'var(--muted2)', fontSize: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                          <span style={{ fontSize: 20 }}>📊</span>
+                        <div className="text-(--muted2) text-xs flex flex-col items-center gap-1">
+                          <span className="text-5xl">📊</span>
                           <span>{t('journal_no_img')}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Info del trade */}
-                    <div style={{ padding: '12px 14px' }}>
+                    <div className="p-3.5">
                       {/* Asset + PnL */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8, flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span style={{ fontSize: 16, fontWeight: 700 }}>{tr.asset}</span>
+                      <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base font-bold">{tr.asset}</span>
                           <span className={`badge badge-${tr.direction}`}>{tr.direction.toUpperCase()}</span>
                         </div>
-                        <div style={{
-                          fontSize: 18, fontWeight: 700, color,
-                          padding: '2px 10px', borderRadius: 8, background: bg,
-                          fontFamily: 'var(--mono)',
+                        <div className="text-lg font-bold rounded text-sm p-0.5 px-2.5 font-mono" style={{
+                          color,
+                          background: bg,
                         }}>
                           {formatPnl(pnl)}
                         </div>
                       </div>
 
                       {/* Badges secundarios */}
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: tr.comment ? 10 : 0 }}>
+                      <div className={`flex gap-1.5 flex-wrap ${tr.comment ? 'mb-2.5' : ''}`}>
                         {tr.pct != null && (
-                          <span style={{ fontSize: 11, padding: '3px 7px', borderRadius: 4, background: 'var(--surface3)', color: 'var(--muted)' }}>
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
                             {locale === 'es' ? 'Riesgo' : 'Risk'}: {tr.pct}%
                           </span>
                         )}
                         {tr.rr && (
-                          <span style={{ fontSize: 11, padding: '3px 7px', borderRadius: 4, background: 'var(--surface3)', color: 'var(--muted)' }}>
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
                             R:R {tr.rr}
                           </span>
                         )}
                         {tr.patrimony != null && (
-                          <span style={{ fontSize: 11, padding: '3px 7px', borderRadius: 4, background: 'var(--surface3)', color: 'var(--muted)' }}>
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
                             ${tr.patrimony.toLocaleString()}
                           </span>
                         )}
@@ -234,23 +197,14 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
 
                       {/* Comentario */}
                       {tr.comment && (
-                        <div style={{
-                          fontSize: 13, color: 'var(--muted)', lineHeight: 1.6,
-                          padding: '9px 11px', background: 'var(--surface)',
-                          borderRadius: 8, border: '1px solid var(--border)',
-                          marginTop: 10,
-                        }}>
+                        <div className="text-sm text-(--muted) leading-relaxed p-2.75 bg-(--surface) rounded border border-(--border) mt-2.5">
                           {tr.comment}
                         </div>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div style={{
-                      display: 'flex', justifyContent: 'flex-end', gap: 8,
-                      padding: '8px 14px 12px',
-                      borderTop: '1px solid var(--border)',
-                    }}>
+                    <div className="flex justify-end gap-2 p-2 pt-0 border-t border-(--border)">
                       <button className="btn btn-ghost btn-sm" onClick={() => { onClose(); setTimeout(() => onEdit(tr), 120) }}>
                         {t('journal_edit')}
                       </button>
@@ -270,22 +224,11 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
       {lightbox && (
         <div
           onClick={() => setLightbox(null)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,0.96)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 400, cursor: 'zoom-out', padding: 16,
-          }}
+          className="fixed inset-0 bg-black/96 z-[400] cursor-zoom-out p-4 flex items-center justify-center"
         >
           <button
             onClick={() => setLightbox(null)}
-            style={{
-              position: 'absolute', top: 16, right: 16,
-              background: 'var(--surface2)', border: '1px solid var(--border2)',
-              color: 'var(--muted)', fontSize: 20, width: 36, height: 36,
-              borderRadius: '50%', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', cursor: 'pointer',
-            }}
+            className="absolute top-4 right-4 bg-(--surface2) border border-(--border2) text-(--muted) text-xl w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
           >
             ×
           </button>
@@ -293,10 +236,7 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
             src={lightbox}
             alt="Análisis"
             onClick={e => e.stopPropagation()}
-            style={{
-              maxWidth: '100%', maxHeight: '92vh',
-              borderRadius: 'var(--radius)', objectFit: 'contain', cursor: 'default',
-            }}
+            className="max-w-full max-h-[92vh] rounded object-contain cursor-default"
           />
         </div>
       )}
