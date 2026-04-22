@@ -26,9 +26,10 @@ function AccountModal({
   const [saving, setSaving]   = useState(false)
 
   useEffect(() => {
-    if (!open) return
-    setName(editAccount?.name ?? '')
-    setCapital(editAccount?.initial_capital ? String(editAccount.initial_capital) : '')
+    if (open) {
+      setName(editAccount?.name ?? '')
+      setCapital(editAccount?.initial_capital ? String(editAccount.initial_capital) : '')
+    }
   }, [open, editAccount])
 
   if (!open) return null
@@ -126,7 +127,7 @@ function SidebarContent({
   locale: string
   setLocale: (l: 'es' | 'en') => void
   handleLogout: () => void
-  t: (key: string) => string
+  t: (key: any) => string
 }) {
   const { accounts, activeAccount, setActiveAccount, refreshAccounts } = useAccount()
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -399,9 +400,12 @@ export default function Sidebar() {
       setUser(session?.user ?? null)
     })
     return () => subscription.unsubscribe()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => { setMobileOpen(false) }, [pathname])
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [pathname])
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
