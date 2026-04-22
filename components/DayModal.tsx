@@ -44,24 +44,24 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
       {/* Overlay */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/82 backdrop-blur-sm z-50 flex items-center justify-center p-2"
+        className="fixed inset-0 bg-black/82 backdrop-blur-sm z-[200] flex items-center justify-center p-2"
       >
         {/* Modal */}
         <div
           onClick={e => e.stopPropagation()}
-          className="modal-mobile-full bg-(--surface) rounded-[18px] w-[680px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-32px)] overflow-y-auto flex flex-col"
+          className="modal-mobile-full bg-[var(--surface)] rounded-[18px] w-[680px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-32px)] overflow-y-auto flex flex-col"
           style={{
             border: `1px solid ${accentBorder}`,
           }}
         >
           {/* Header — sticky */}
-          <div className="p-4 border-b border-(--border) flex items-center justify-between gap-2.5 sticky top-0 bg-(--surface) z-10 rounded-t-[18px] flex-wrap">
+          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between gap-2.5 sticky top-0 bg-[var(--surface)] z-10 rounded-t-[18px] flex-wrap">
             <div className="flex items-center gap-2.5 flex-1 min-w-0">
               <div className="min-w-0">
                 <div className="text-sm font-semibold capitalize whitespace-nowrap overflow-hidden text-ellipsis">
                   {dateLabel}
                 </div>
-                <div className="text-[11px] text-(--muted) mt-0.5">
+                <div className="text-[11px] text-[var(--muted)] mt-0.5">
                   {trades.length === 0
                     ? locale === 'es' ? 'Sin trades' : 'No trades'
                     : `${trades.length} trade${trades.length !== 1 ? 's' : ''}`}
@@ -87,7 +87,7 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
               </button>
               <button
                 onClick={onClose}
-                className="bg-none border-0 text-(--muted) text-2xl cursor-pointer leading-none p-0 px-1 flex-shrink-0"
+                className="bg-none border-0 text-[var(--muted)] text-2xl cursor-pointer leading-none p-0 px-1 flex-shrink-0"
               >
                 ×
               </button>
@@ -97,9 +97,9 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
           {/* Body */}
           <div className="p-4 flex flex-col gap-4">
             {trades.length === 0 ? (
-              <div className="text-center py-10 text-(--muted)">
+              <div className="text-center py-10 text-[var(--muted)]">
                 <div className="text-4xl mb-2.5">📅</div>
-                <div className="text-sm font-medium mb-1.5 text-(--text)">
+                <div className="text-sm font-medium mb-1.5 text-[var(--text)]">
                   {locale === 'es' ? 'Sin trades este día' : 'No trades this day'}
                 </div>
                 <div className="text-xs">
@@ -121,44 +121,81 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
                 return (
                   <div
                     key={tr.id}
-                    className="bg-(--surface2) border border-(--border) rounded-3xl overflow-hidden"
+                    className="bg-[var(--surface2)] border border-[var(--border)] rounded-3xl overflow-hidden"
                   >
                     {/* Trade # label si hay varios */}
                     {trades.length > 1 && (
-                      <div className="px-3.5 pt-2 text-[11px] text-(--muted2) font-medium">
+                      <div className="px-3.5 pt-2 text-[11px] text-[var(--muted2)] font-medium">
                         Trade #{idx + 1}
                       </div>
                     )}
 
-                    {/* ── Imagen del análisis — protagonista ── */}
-                    <div
-                      className="w-full cursor-pointer relative overflow-hidden flex items-center justify-center"
-                      style={{
-                        height: tr.image_url ? 220 : 64,
-                        background: imgBg,
-                        marginTop: trades.length > 1 ? 8 : 0,
-                      }}
-                      onClick={() => tr.image_url && setLightbox(tr.image_url)}
-                    >
-                      {tr.image_url ? (
-                        <>
-                          <img
-                            src={tr.image_url}
-                            alt="Análisis"
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Hint zoom */}
-                          <div className="absolute bottom-2 right-2 bg-black/65 rounded text-xs text-white flex items-center gap-1 px-2 py-0.75 pointer-events-none">
-                            🔍 {locale === 'es' ? 'Ver análisis' : 'View analysis'}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-(--muted2) text-xs flex flex-col items-center gap-1">
+                    {/* ── Imágenes del análisis ── */}
+                    {(tr.image_url_macro || tr.image_url_micro) ? (
+                      <div className="grid grid-cols-2 gap-2 p-2" style={{ background: imgBg }}>
+                        {/* MACRO */}
+                        <div
+                          className={`cursor-pointer relative overflow-hidden flex items-center justify-center rounded-lg ${!tr.image_url_macro ? 'opacity-40' : ''}`}
+                          style={{ height: 160 }}
+                          onClick={() => tr.image_url_macro && setLightbox(tr.image_url_macro)}
+                        >
+                          {tr.image_url_macro ? (
+                            <>
+                              <img src={tr.image_url_macro} alt="MACRO" className="w-full h-full object-cover" />
+                              <div className="absolute top-2 left-2 bg-black/75 rounded text-[10px] text-white px-1.5 py-0.5 font-medium uppercase tracking-wider">
+                                MACRO
+                              </div>
+                              <div className="absolute bottom-2 right-2 bg-black/65 rounded text-xs text-white flex items-center gap-1 px-2 py-0.75 pointer-events-none">
+                                🔍
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-[var(--muted2)] text-xs flex flex-col items-center gap-1">
+                              <span className="text-3xl">📊</span>
+                              <span className="text-[10px]">MACRO</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* MICRO */}
+                        <div
+                          className={`cursor-pointer relative overflow-hidden flex items-center justify-center rounded-lg ${!tr.image_url_micro ? 'opacity-40' : ''}`}
+                          style={{ height: 160 }}
+                          onClick={() => tr.image_url_micro && setLightbox(tr.image_url_micro)}
+                        >
+                          {tr.image_url_micro ? (
+                            <>
+                              <img src={tr.image_url_micro} alt="MICRO" className="w-full h-full object-cover" />
+                              <div className="absolute top-2 left-2 bg-black/75 rounded text-[10px] text-white px-1.5 py-0.5 font-medium uppercase tracking-wider">
+                                MICRO
+                              </div>
+                              <div className="absolute bottom-2 right-2 bg-black/65 rounded text-xs text-white flex items-center gap-1 px-2 py-0.75 pointer-events-none">
+                                🔍
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-[var(--muted2)] text-xs flex flex-col items-center gap-1">
+                              <span className="text-3xl">🔍</span>
+                              <span className="text-[10px]">MICRO</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className="w-full cursor-pointer relative overflow-hidden flex items-center justify-center"
+                        style={{
+                          height: 64,
+                          background: imgBg,
+                          marginTop: trades.length > 1 ? 8 : 0,
+                        }}
+                      >
+                        <div className="text-[var(--muted2)] text-xs flex flex-col items-center gap-1">
                           <span className="text-5xl">📊</span>
                           <span>{t('journal_no_img')}</span>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Info del trade */}
                     <div className="p-3.5">
@@ -179,17 +216,17 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
                       {/* Badges secundarios */}
                       <div className={`flex gap-1.5 flex-wrap ${tr.comment ? 'mb-2.5' : ''}`}>
                         {tr.pct != null && (
-                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-[var(--surface3)] text-[var(--muted)]">
                             {locale === 'es' ? 'Riesgo' : 'Risk'}: {tr.pct}%
                           </span>
                         )}
                         {tr.rr && (
-                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-[var(--surface3)] text-[var(--muted)]">
                             R:R {tr.rr}
                           </span>
                         )}
                         {tr.patrimony != null && (
-                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-(--surface3) text-(--muted)">
+                          <span className="text-[11px] px-1.75 py-0.75 rounded bg-[var(--surface3)] text-[var(--muted)]">
                             ${tr.patrimony.toLocaleString()}
                           </span>
                         )}
@@ -197,14 +234,14 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
 
                       {/* Comentario */}
                       {tr.comment && (
-                        <div className="text-sm text-(--muted) leading-relaxed p-2.75 bg-(--surface) rounded border border-(--border) mt-2.5">
+                        <div className="text-sm text-[var(--muted)] leading-relaxed p-2.75 bg-[var(--surface)] rounded border border-[var(--border)] mt-2.5">
                           {tr.comment}
                         </div>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end gap-2 p-2 pt-0 border-t border-(--border)">
+                    <div className="flex justify-end gap-2 p-2 pt-0 border-t border-[var(--border)]">
                       <button className="btn btn-ghost btn-sm" onClick={() => { onClose(); setTimeout(() => onEdit(tr), 120) }}>
                         {t('journal_edit')}
                       </button>
@@ -228,7 +265,7 @@ export default function DayModal({ open, onClose, date, trades, onEdit, onDelete
         >
           <button
             onClick={() => setLightbox(null)}
-            className="absolute top-4 right-4 bg-(--surface2) border border-(--border2) text-(--muted) text-xl w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
+            className="absolute top-4 right-4 bg-[var(--surface2)] border border-[var(--border2)] text-[var(--muted)] text-xl w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
           >
             ×
           </button>

@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase-server'
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { searchParams } = new URL(req.url)
-  const accountId = searchParams.get('account_id')
-
-  let query = supabase
-    .from('trades')
+  const { data, error } = await supabase
+    .from('accounts')
     .select('*')
     .eq('user_id', user.id)
-    .order('trade_date', { ascending: false })
+    .order('created_at', { ascending: true })
 
-  if (accountId) {
-    query = query.eq('account_id', accountId)
-  }
-
-  const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
@@ -31,8 +23,8 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const { data, error } = await supabase
-    .from('trades')
-    .insert([{ ...body, user_id: user.id }])
+    .from('accounts')
+    .insert([{ ...body, user_id: user.id, status: 'active' }])
     .select()
     .single()
 
@@ -47,7 +39,7 @@ export async function PUT(req: NextRequest) {
 
   const { id, ...fields } = await req.json()
   const { data, error } = await supabase
-    .from('trades')
+    .from('accounts')
     .update(fields)
     .eq('id', id)
     .eq('user_id', user.id)
@@ -65,7 +57,7 @@ export async function DELETE(req: NextRequest) {
 
   const { id } = await req.json()
   const { error } = await supabase
-    .from('trades')
+    .from('accounts')
     .delete()
     .eq('id', id)
     .eq('user_id', user.id)
