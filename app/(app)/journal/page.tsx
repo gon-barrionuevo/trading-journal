@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Trade } from '@/types/trade'
 import { calcMetrics, formatPnl } from '@/lib/calculations'
 import { useT } from '@/lib/lang-context'
+import { useAccount } from '@/lib/account-context'
 import TradeModal from '@/components/TradeModal'
 import DayModal from '@/components/DayModal'
 
@@ -38,6 +39,7 @@ function cellClasses(status: 'win' | 'loss' | 'be' | null, isToday: boolean, isW
 
 export default function Journal() {
   const { t, locale } = useT()
+  const { activeAccount } = useAccount()
   const today = new Date()
 
   const [trades, setTrades]     = useState<Trade[]>([])
@@ -56,12 +58,16 @@ export default function Journal() {
 
   // ── fetch ──────────────────────────────────────────────────────────────────
   const fetchTrades = async () => {
-    const res  = await fetch('/api/trades')
+    if (!activeAccount) {
+      setLoading(false)
+      return
+    }
+    const res  = await fetch(`/api/trades?account_id=${activeAccount.id}`)
     const data = await res.json()
     setTrades(Array.isArray(data) ? data : [])
     setLoading(false)
   }
-  useEffect(() => { fetchTrades() }, [])
+  useEffect(() => { fetchTrades() }, [activeAccount])
 
   // ── derived ────────────────────────────────────────────────────────────────
   const tradesByDate = useMemo(() => {
@@ -236,7 +242,7 @@ export default function Journal() {
                 const isToday   = dateStr === todayStr
                 const dow       = new Date(dateStr + 'T12:00:00').getDay()
                 const isWeekend = dow === 0 || dow === 6
-                const hasImg    = dayTrades.some(tr => tr.image_url)
+                const hasImg    = dayTrades.some(tr => tr.image_url_macro || tr.image_url_micro)
 
                 const numClass  = status === 'win' ? 'text-green-400' : status === 'loss' ? 'text-red-400' : status === 'be' ? 'text-yellow-300' : isToday ? 'text-accent' : 'text-muted'
                 const pnlClass  = status === 'win' ? 'text-green-400' : status === 'loss' ? 'text-red-400' : 'text-yellow-300'
