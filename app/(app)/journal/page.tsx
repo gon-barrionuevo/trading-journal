@@ -24,20 +24,14 @@ function dayStatus(pnl: number): 'win' | 'loss' | 'be' {
   return pnl > 0 ? 'win' : 'loss'
 }
 
-function cellColors(status: 'win' | 'loss' | 'be' | null, isToday: boolean): React.CSSProperties {
-  const base: React.CSSProperties = {
-    borderRadius: 'var(--radius)',
-    border: '1px solid var(--border)',
-    padding: '8px 10px',
-    cursor: 'pointer',
-    transition: 'border-color 0.15s, transform 0.1s',
-    position: 'relative',
-    overflow: 'hidden',
-  }
-  if (status === 'win')  return { ...base, background: 'linear-gradient(135deg,#071a09,#0d2e10)', borderColor: '#1a5c2a' }
-  if (status === 'loss') return { ...base, background: 'linear-gradient(135deg,#1a0707,#2e0d0d)', borderColor: '#5c1a1a' }
-  if (status === 'be')   return { ...base, background: 'linear-gradient(135deg,#1a1500,#2a2000)', borderColor: '#5c4e00' }
-  return { ...base, background: 'var(--surface)', borderColor: isToday ? 'var(--accent)' : 'var(--border)' }
+function cellClasses(status: 'win' | 'loss' | 'be' | null, isToday: boolean, isWeekend: boolean): string {
+  const base = 'cal-day-cell relative overflow-hidden rounded-default border px-2.5 py-2 cursor-pointer transition duration-150 min-h-18'
+
+  if (status === 'win')  return `${base} bg-[linear-gradient(135deg,#071a09,#0d2e10)] border-[#1a5c2a]`
+  if (status === 'loss') return `${base} bg-[linear-gradient(135deg,#1a0707,#2e0d0d)] border-[#5c1a1a]`
+  if (status === 'be')   return `${base} bg-[linear-gradient(135deg,#1a1500,#2a2000)] border-[#5c4e00]`
+
+  return `${base} bg-surface ${isToday ? 'border-accent' : 'border-border'} ${isWeekend ? 'opacity-45' : ''}`
 }
 
 // ─── component ───────────────────────────────────────────────────────────────
@@ -53,7 +47,6 @@ export default function Journal() {
 
   const [tradeModalOpen, setTradeModalOpen] = useState(false)
   const [editTrade, setEditTrade]           = useState<Trade | null>(null)
-  const [defaultDate, setDefaultDate]       = useState<string | undefined>(undefined)
 
   const [dayModalOpen, setDayModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -145,15 +138,14 @@ export default function Journal() {
     fetchTrades()
   }
 
-  const handleNewTrade = (dateStr?: string) => {
+  const handleNewTrade = () => {
     setEditTrade(null)
-    setDefaultDate(dateStr)
     setTradeModalOpen(true)
   }
 
   // ── render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}>
+    <div className="flex flex-col flex-1 overflow-auto">
 
       {/* Page header */}
       <div className="page-header">
@@ -172,23 +164,23 @@ export default function Journal() {
         ) : (
           <>
             {/* ── Nav ──────────────────────────────────────────────────────── */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2.5">
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button onClick={prevMonth} style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', padding: '6px 12px', cursor: 'pointer', fontSize: 16 }}>‹</button>
-                <div className="cal-nav-title" style={{ fontSize: 18, fontWeight: 700, minWidth: 200, textAlign: 'center' }}>
+              <div className="flex items-center gap-2">
+                <button onClick={prevMonth} className="bg-surface border border-border2 text-text rounded-sm px-3 py-1.5 cursor-pointer text-base">‹</button>
+                <div className="cal-nav-title text-lg font-bold min-w-50 text-center">
                   {months[curMonth]} {curYear}
                 </div>
-                <button onClick={nextMonth} style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', padding: '6px 12px', cursor: 'pointer', fontSize: 16 }}>›</button>
+                <button onClick={nextMonth} className="bg-surface border border-border2 text-text rounded-sm px-3 py-1.5 cursor-pointer text-base">›</button>
               </div>
 
-              <div style={{ display: 'flex', gap: 6 }}>
+              <div className="flex gap-1.5">
                 <select value={curMonth} onChange={e => setCurMonth(Number(e.target.value))}
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', padding: '6px 10px', cursor: 'pointer', fontSize: 13 }}>
+                  className="bg-surface border border-border2 text-text rounded-sm px-2.5 py-1.5 cursor-pointer text-sm">
                   {months.map((m, i) => <option key={i} value={i}>{m}</option>)}
                 </select>
                 <select value={curYear} onChange={e => setCurYear(Number(e.target.value))}
-                  style={{ background: 'var(--surface)', border: '1px solid var(--border2)', color: 'var(--text)', borderRadius: 'var(--radius-sm)', padding: '6px 10px', cursor: 'pointer', fontSize: 13 }}>
+                  className="bg-surface border border-border2 text-text rounded-sm px-2.5 py-1.5 cursor-pointer text-sm">
                   {Array.from({ length: 6 }, (_, i) => today.getFullYear() - 2 + i).map(y => (
                     <option key={y} value={y}>{y}</option>
                   ))}
@@ -197,45 +189,41 @@ export default function Journal() {
             </div>
 
             {/* ── Stats del mes ─────────────────────────────────────────────── */}
-            <div className="cal-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8, marginBottom: 20 }}>
+            <div className="cal-stats-grid grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-2 mb-5">
               {[
                 {
                   label: locale === 'es' ? 'P&L del mes' : 'Monthly P&L',
                   value: formatPnl(monthStats.totalPnl),
-                  color: Math.abs(monthStats.totalPnl) <= 0.5 ? '#f5c400' : monthStats.totalPnl > 0 ? 'var(--green)' : 'var(--red)',
+                  valueClass: Math.abs(monthStats.totalPnl) <= 0.5 ? 'text-amber' : monthStats.totalPnl > 0 ? 'text-green' : 'text-red',
                 },
-                { label: locale === 'es' ? 'Días operados' : 'Trading days', value: String(monthStats.tradeDays), color: 'var(--text)' },
-                { label: 'Win rate', value: monthStats.tradeDays ? `${monthStats.winRate}%` : '—', color: 'var(--green)' },
-                { label: locale === 'es' ? 'Días ganadores' : 'Win days', value: String(monthStats.winDays), color: 'var(--green)' },
-                { label: locale === 'es' ? 'Días perdedores' : 'Loss days', value: String(monthStats.lossDays), color: 'var(--red)' },
+                { label: locale === 'es' ? 'Días operados' : 'Trading days', value: String(monthStats.tradeDays), valueClass: 'text-text' },
+                { label: 'Win rate', value: monthStats.tradeDays ? `${monthStats.winRate}%` : '—', valueClass: 'text-green' },
+                { label: locale === 'es' ? 'Días ganadores' : 'Win days', value: String(monthStats.winDays), valueClass: 'text-green' },
+                { label: locale === 'es' ? 'Días perdedores' : 'Loss days', value: String(monthStats.lossDays), valueClass: 'text-red' },
                 {
                   label: locale === 'es' ? 'Mejor día' : 'Best day',
                   value: monthStats.bestDay ? `+$${monthStats.bestDay.toFixed(0)}` : '—',
-                  color: 'var(--green)',
+                  valueClass: 'text-green',
                 },
               ].map(s => (
-                <div key={s.label} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '10px 12px' }}>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3, fontWeight: 500 }}>{s.label}</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: s.color, fontFamily: 'var(--mono)' }}>{s.value}</div>
+                <div key={s.label} className="bg-surface border border-border rounded-default px-3 py-2.5">
+                  <div className="text-xs text-muted mb-0.5 font-medium">{s.label}</div>
+                  <div className={`text-base font-bold mono ${s.valueClass}`}>{s.value}</div>
                 </div>
               ))}
             </div>
 
             {/* ── Weekday headers ────────────────────────────────────────────── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3, marginBottom: 3 }}>
+            <div className="grid grid-cols-7 gap-0.75 mb-0.75">
               {days.map((d, i) => (
-                <div key={d} className="cal-weekday" style={{
-                  textAlign: 'center', fontSize: 11, fontWeight: 600,
-                  color: i >= 5 ? 'var(--muted2)' : 'var(--muted)',
-                  padding: '3px 0', letterSpacing: '0.04em',
-                }}>
+                <div key={d} className={`cal-weekday text-center text-xs font-semibold py-0.75 tracking-wide ${i >= 5 ? 'text-muted2' : 'text-muted'}`}>
                   {d}
                 </div>
               ))}
             </div>
 
             {/* ── Calendar grid ──────────────────────────────────────────────── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 3 }}>
+            <div className="grid grid-cols-7 gap-0.75">
               {/* Offset vacío */}
               {Array.from({ length: offset }).map((_, i) => <div key={`e-${i}`} />)}
 
@@ -250,38 +238,32 @@ export default function Journal() {
                 const isWeekend = dow === 0 || dow === 6
                 const hasImg    = dayTrades.some(tr => tr.image_url)
 
-                const numColor  = status === 'win' ? '#4ade80' : status === 'loss' ? '#f87171' : status === 'be' ? '#fde047' : isToday ? 'var(--accent)' : 'var(--muted)'
-                const pnlColor  = status === 'win' ? '#4ade80' : status === 'loss' ? '#f87171' : '#fde047'
-                const cntColor  = status === 'win' ? '#86efac' : status === 'loss' ? '#fca5a5' : '#fef08a'
+                const numClass  = status === 'win' ? 'text-green-400' : status === 'loss' ? 'text-red-400' : status === 'be' ? 'text-yellow-300' : isToday ? 'text-accent' : 'text-muted'
+                const pnlClass  = status === 'win' ? 'text-green-400' : status === 'loss' ? 'text-red-400' : 'text-yellow-300'
+                const cntClass  = status === 'win' ? 'text-green-300' : status === 'loss' ? 'text-red-300' : 'text-yellow-200'
+                const imgClass  = status ? cntClass : 'text-muted2'
 
                 return (
                   <div
                     key={day}
-                    className="cal-day-cell"
-                    style={{
-                      ...cellColors(status, isToday),
-                      minHeight: 72,
-                      opacity: isWeekend && !status ? 0.45 : 1,
-                    }}
+                    className={cellClasses(status, isToday, isWeekend)}
                     onClick={() => openDay(dateStr)}
-                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'scale(1.025)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'scale(1)' }}
                   >
-                    <div className="cal-day-num" style={{ fontSize: 12, fontWeight: 600, color: numColor, marginBottom: 3 }}>
+                    <div className={`cal-day-num text-xs font-semibold mb-0.75 ${numClass}`}>
                       {day}
                     </div>
                     {status && (
-                      <div className="cal-day-pnl" style={{ fontSize: 11, fontWeight: 700, color: pnlColor, lineHeight: 1.2 }}>
+                      <div className={`cal-day-pnl text-xs font-bold leading-tight ${pnlClass}`}>
                         {pnl >= 0 ? '+' : ''}{pnl % 1 === 0 ? pnl : pnl.toFixed(1)}
                       </div>
                     )}
                     {dayTrades.length > 0 && (
-                      <div className="cal-day-count" style={{ fontSize: 10, color: cntColor, marginTop: 2 }}>
+                      <div className={`cal-day-count text-[10px] mt-0.5 ${cntClass}`}>
                         {dayTrades.length}t
                       </div>
                     )}
                     {hasImg && (
-                      <div className="cal-day-img" style={{ position: 'absolute', bottom: 5, right: 5, fontSize: 9, color: status ? cntColor : 'var(--muted2)' }}>
+                      <div className={`cal-day-img absolute bottom-1.25 right-1.25 text-[9px] ${imgClass}`}>
                         📷
                       </div>
                     )}
@@ -291,19 +273,19 @@ export default function Journal() {
             </div>
 
             {/* ── Leyenda ─────────────────────────────────────────────────────── */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="flex gap-4 mt-4 flex-wrap items-center">
               {[
-                { color: '#1a5c2a', label: locale === 'es' ? 'Ganancia' : 'Profit' },
-                { color: '#5c1a1a', label: locale === 'es' ? 'Pérdida' : 'Loss' },
-                { color: '#5c4e00', label: 'Break Even (±$0.50)' },
-                { color: 'var(--border)', label: locale === 'es' ? 'Sin trades' : 'No trades' },
+                { dotClass: 'bg-[#1a5c2a]', label: locale === 'es' ? 'Ganancia' : 'Profit' },
+                { dotClass: 'bg-[#5c1a1a]', label: locale === 'es' ? 'Pérdida' : 'Loss' },
+                { dotClass: 'bg-[#5c4e00]', label: 'Break Even (±$0.50)' },
+                { dotClass: 'bg-border', label: locale === 'es' ? 'Sin trades' : 'No trades' },
               ].map(l => (
-                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--muted)' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 3, background: l.color, border: '1px solid var(--border2)', flexShrink: 0 }} />
+                <div key={l.label} className="flex items-center gap-1.25 text-xs text-muted">
+                  <div className={`w-2.5 h-2.5 rounded-[3px] border border-border2 shrink-0 ${l.dotClass}`} />
                   {l.label}
                 </div>
               ))}
-              <div style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div className="text-xs text-muted ml-auto flex items-center gap-1">
                 📷 {locale === 'es' ? 'Con análisis' : 'Has analysis'}
               </div>
             </div>
@@ -323,13 +305,13 @@ export default function Journal() {
           const remaining = (tradesByDate.get(selectedDate ?? '') ?? []).filter(tr => tr.id !== id)
           if (remaining.length === 0) setDayModalOpen(false)
         }}
-        onNewTrade={() => handleNewTrade(selectedDate ? selectedDate + 'T09:00' : undefined)}
+        onNewTrade={handleNewTrade}
       />
 
       {/* ── TradeModal ────────────────────────────────────────────────────────── */}
       <TradeModal
         open={tradeModalOpen}
-        onClose={() => { setTradeModalOpen(false); setEditTrade(null); setDefaultDate(undefined) }}
+        onClose={() => { setTradeModalOpen(false); setEditTrade(null) }}
         onSaved={fetchTrades}
         editTrade={editTrade}
         defaultPatrimony={m.patrimonio}

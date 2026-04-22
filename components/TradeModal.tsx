@@ -11,6 +11,10 @@ type Props = {
   defaultPatrimony?: number
 }
 
+/**
+ * Retorna un objeto de formulario vacío con valores por defecto
+ * @returns NewTrade con valores iniciales
+ */
 const emptyForm = (): NewTrade => ({
   asset: 'BTC/USDT',
   direction: 'long',
@@ -57,11 +61,20 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     setPctAutoCalc(false)
   }, [open, editTrade, defaultPatrimony])
 
+  /**
+   * Muestra un mensaje de notificación temporal por 3 segundos
+   * @param msg - Mensaje a mostrar en el toast
+   */
   const showToast = (msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)
   }
 
+  /**
+   * Maneja la selección de imagen del usuario
+   * Valida el tamaño (máx 5MB) y genera preview local
+   * @param e - Evento del input file
+   */
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -70,6 +83,11 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     setImagePreview(URL.createObjectURL(file))
   }
 
+  /**
+   * Sube la imagen al servidor mediante FormData
+   * @param file - Archivo de imagen a subir
+   * @returns URL de la imagen subida o null si falla
+   */
   const uploadImage = async (file: File): Promise<string | null> => {
     const fd = new FormData()
     fd.append('file', file)
@@ -79,7 +97,13 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     return url
   }
 
-  // ── Manejador de PnL con cálculo automático de % ──────────────────────────
+  /**
+   * Maneja cambios en el input de Ganancia/Pérdida
+   * - Valida formato (solo números, punto, coma, signo menos)
+   * - Auto-calcula % de riesgo si es pérdida y hay patrimonio
+   * - Desactiva auto-cálculo si es ganancia o se borra
+   * @param e - Evento del input de PnL
+   */
   const handlePnlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
 
@@ -104,7 +128,11 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     }
   }
 
-  // Si el usuario edita el patrimonio mientras hay una pérdida cargada, recalcular
+  /**
+   * Maneja cambios en el input de Patrimonio
+   * Si hay una pérdida registrada, recalcula automáticamente el % de riesgo
+   * @param e - Evento del input de patrimonio
+   */
   const handlePatrimonyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const patrimony = e.target.value ? parseFloat(e.target.value) : null
     setForm(f => ({ ...f, patrimony }))
@@ -117,12 +145,23 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
     }
   }
 
-  // Si el usuario edita manualmente el %, desactivar el auto-cálculo
+  /**
+   * Maneja cambios en el input de % de capital arriesgado
+   * Desactiva el auto-cálculo cuando el usuario edita manualmente
+   * @param e - Evento del input de porcentaje
+   */
   const handlePctChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPctAutoCalc(false)
     setForm(f => ({ ...f, pct: e.target.value ? parseFloat(e.target.value) : null }))
   }
 
+  /**
+   * Valida y envía el formulario al servidor
+   * - Valida campos requeridos (activo, pnl)
+   * - Sube imagen si fue seleccionada
+   * - Realiza POST (nuevo) o PUT (edición)
+   * - Muestra mensaje de éxito o error
+   */
   const handleSubmit = async () => {
     if (!form.asset.trim()) { showToast('Ingresá el activo'); return }
     const parsedPnl = parseFloat(pnlRaw)
@@ -169,42 +208,27 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
       {/* Overlay */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}
+        className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center"
       >
         {/* Modal */}
         <div
           onClick={e => e.stopPropagation()}
-          className="modal-mobile-full"
-          style={{
-            background: 'var(--surface)',
-            border: '1px solid var(--border2)',
-            borderRadius: 16,
-            width: 560, maxWidth: 'calc(100vw - 32px)',
-            maxHeight: 'calc(100vh - 40px)',
-            overflowY: 'auto',
-            padding: 28,
-          }}
+          className="modal-mobile-full bg-surface border border-border2 rounded-xl w-[560px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-40px)] overflow-y-auto p-7"
         >
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-            <div style={{ fontSize: 17, fontWeight: 600 }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="text-lg font-semibold">
               {editTrade ? 'Editar trade' : 'Registrar nuevo trade'}
             </div>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 20, cursor: 'pointer' }}>×</button>
+            <button onClick={onClose} className="bg-none border-none text-muted text-xl cursor-pointer">×</button>
           </div>
 
           {/* Form */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          <div className="grid grid-cols-2 gap-3.5 mb-3.5">
 
             {/* Activo */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Activo *</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Activo *</label>
               <input
                 className="form-input"
                 value={form.asset}
@@ -214,27 +238,20 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
             </div>
 
             {/* Dirección */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Dirección</label>
-              <div style={{ display: 'flex', gap: 8 }}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Dirección</label>
+              <div className="flex gap-2">
                 {(['long', 'short'] as const).map(dir => (
                   <button
                     key={dir}
                     onClick={() => setForm(f => ({ ...f, direction: dir }))}
-                    style={{
-                      flex: 1, padding: 9,
-                      borderRadius: 'var(--radius-sm)',
-                      border: form.direction === dir
-                        ? `1px solid ${dir === 'long' ? 'var(--green)' : 'var(--red)'}`
-                        : '1px solid var(--border2)',
-                      background: form.direction === dir
-                        ? (dir === 'long' ? 'var(--green-bg)' : 'var(--red-bg)')
-                        : 'var(--surface2)',
-                      color: form.direction === dir
-                        ? (dir === 'long' ? 'var(--green)' : 'var(--red)')
-                        : 'var(--muted)',
-                      fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, cursor: 'pointer'
-                    }}
+                    className={`flex-1 py-2.5 rounded-sm font-medium text-sm cursor-pointer font-[var(--font)] ${
+                      form.direction === dir
+                        ? dir === 'long'
+                          ? 'border border-green bg-green-bg text-green'
+                          : 'border border-red bg-red-bg text-red'
+                        : 'border border-border2 bg-surface2 text-muted'
+                    }`}
                   >
                     {dir === 'long' ? '↑ LONG' : '↓ SHORT'}
                   </button>
@@ -243,10 +260,10 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
             </div>
 
             {/* Ganancia/Pérdida — full width, ANTES del % para que el cálculo tenga sentido visualmente */}
-            <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
+            <div className="col-span-full flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">
                 Ganancia / Pérdida (USD) *
-                <span style={{ color: 'var(--muted2)', fontWeight: 400 }}> — cuánto ganaste o perdiste</span>
+                <span className="text-muted2 font-normal"> — cuánto ganaste o perdiste</span>
               </label>
               <input
                 className="form-input"
@@ -259,15 +276,11 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
             </div>
 
             {/* % Riesgo */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ color: 'var(--muted)' }}>% capital arriesgado</span>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium flex items-center gap-1.5">
+                <span className="text-muted">% capital arriesgado</span>
                 {pctAutoCalc && (
-                  <span style={{
-                    fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                    background: 'rgba(255,77,109,0.12)', color: 'var(--red)',
-                    fontWeight: 600,
-                  }}>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/12 text-red font-semibold">
                     auto
                   </span>
                 )}
@@ -285,32 +298,31 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
                 }}
               />
               {pctAutoCalc && form.patrimony && (
-                <div style={{ fontSize: 11, color: 'var(--muted2)', marginTop: -2 }}>
+                <div className="text-[11px] text-muted2 -mt-0.5">
                   Calculado: |{pnlRaw}| ÷ {form.patrimony} × 100
                 </div>
               )}
             </div>
 
             {/* Patrimonio */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">
                 Patrimonio antes del trade
-                <span style={{ color: 'var(--green)', fontWeight: 400 }}> — auto</span>
+                <span className="text-green font-normal"> — auto</span>
               </label>
               <input
-                className="form-input"
+                className="form-input text-(--muted)"
                 type="number"
                 step="0.01"
                 value={form.patrimony ?? ''}
                 onChange={handlePatrimonyChange}
                 placeholder="Se carga automáticamente"
-                style={{ color: 'var(--muted)' }}
               />
             </div>
 
             {/* Fecha */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Fecha y hora</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Fecha y hora</label>
               <input
                 className="form-input"
                 type="datetime-local"
@@ -320,8 +332,8 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
             </div>
 
             {/* R:R */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>R:R</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">R:R</label>
               <input
                 className="form-input"
                 value={form.rr ?? ''}
@@ -331,33 +343,26 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
             </div>
 
             {/* Imagen — full width */}
-            <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Imagen del chart / análisis</label>
-              <div style={{
-                border: '1.5px dashed var(--border2)', borderRadius: 'var(--radius)',
-                padding: 24, textAlign: 'center', cursor: 'pointer', position: 'relative',
-                transition: 'border-color 0.15s'
-              }}>
+            <div className="col-span-full flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Imagen del chart / análisis</label>
+              <div className="border-1.5 border-dashed border-border2 rounded-default p-6 text-center cursor-pointer relative transition-colors duration-150">
                 <input
                   type="file" accept="image/*"
                   onChange={handleImage}
-                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
                 />
-                <div style={{ fontSize: 24, marginBottom: 8 }}>🖼</div>
-                <div style={{ fontSize: 12, color: 'var(--muted)' }}>Arrastrá o hacé clic para subir tu screenshot</div>
-                <div style={{ fontSize: 11, color: 'var(--muted2)', marginTop: 4 }}>PNG, JPG hasta 5MB</div>
+                <div className="text-2xl mb-2">🖼</div>
+                <div className="text-xs text-muted">Arrastrá o hacé clic para subir tu screenshot</div>
+                <div className="text-[11px] text-muted2 mt-1">PNG, JPG hasta 5MB</div>
               </div>
               {imagePreview && (
-                <img src={imagePreview} alt="Preview" style={{
-                  width: '100%', height: 140, objectFit: 'cover',
-                  borderRadius: 'var(--radius-sm)', marginTop: 8
-                }} />
+                <img src={imagePreview} alt="Preview" className="w-full h-35 object-cover rounded-sm mt-2" />
               )}
             </div>
 
             {/* Comentario — full width */}
-            <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Análisis / Comentario</label>
+            <div className="col-span-full flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Análisis / Comentario</label>
               <textarea
                 className="form-textarea"
                 value={form.comment ?? ''}
@@ -369,7 +374,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
           </div>
 
           {/* Footer */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+          <div className="flex gap-2.5 justify-end mt-6 pt-5 border-t border-border">
             <button className="btn btn-ghost" onClick={onClose}>Cancelar</button>
             <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
               {saving ? 'Guardando...' : editTrade ? '✓ Guardar cambios' : '✓ Guardar trade'}
@@ -380,7 +385,7 @@ export default function TradeModal({ open, onClose, onSaved, editTrade, defaultP
 
       {/* Toast */}
       {toast && (
-        <div className="toast show" style={{ zIndex: 200 }}>
+        <div className="toast show z-[200]">
           <span>✓</span><span>{toast}</span>
         </div>
       )}

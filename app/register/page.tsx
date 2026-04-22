@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import Link from 'next/link'
 
 export default function Register() {
-  const router   = useRouter()
   const supabase = createClient()
 
   const [name, setName]         = useState('')
@@ -40,22 +38,16 @@ export default function Register() {
 
   if (success) {
     return (
-      <div style={{
-        minHeight: '100vh', background: 'var(--bg)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-      }}>
-        <div style={{
-          background: 'var(--surface)', border: '1px solid var(--border2)',
-          borderRadius: 16, padding: 40, maxWidth: 400, width: '100%', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: 36, marginBottom: 16 }}>✉️</div>
-          <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>Revisá tu email</div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-            Te enviamos un link de confirmación a <strong style={{ color: 'var(--text)' }}>{email}</strong>.
+      <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+        <div className="bg-surface border border-border2 rounded-2xl p-10 max-w-sm w-full text-center">
+          <div className="text-4xl mb-4">✉️</div>
+          <div className="text-lg font-semibold mb-2">Revisá tu email</div>
+          <div className="text-sm text-muted leading-relaxed">
+            Te enviamos un link de confirmación a <strong className="text-text">{email}</strong>.
             Hacé clic en el link para activar tu cuenta.
           </div>
           <Link href="/login">
-            <button className="btn btn-ghost" style={{ marginTop: 24, width: '100%', justifyContent: 'center' }}>
+            <button className="btn btn-ghost mt-6 w-full justify-center">
               Volver al login
             </button>
           </Link>
@@ -65,33 +57,22 @@ export default function Register() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--bg)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-    }}>
-      <div style={{ width: '100%', maxWidth: 400 }}>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-6">
+      <div className="w-full max-w-sm">
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            width: 48, height: 48, background: 'var(--accent)',
-            borderRadius: 12, display: 'inline-flex',
-            alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: 20, color: '#fff', marginBottom: 16,
-          }}>Tf</div>
-          <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Tradefolio</div>
-          <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Trading Journal</div>
+        <div className="text-center mb-10">
+          <div className="w-12 h-12 bg-accent rounded-xl inline-flex items-center justify-center font-bold text-xl text-white mb-4">Tf</div>
+          <div className="text-2xl font-semibold text-text">Tradefolio</div>
+          <div className="text-sm text-muted mt-1">Trading Journal</div>
         </div>
 
-        <div style={{
-          background: 'var(--surface)', border: '1px solid var(--border2)',
-          borderRadius: 16, padding: 32,
-        }}>
-          <div style={{ fontSize: 17, fontWeight: 600, marginBottom: 24 }}>Crear cuenta</div>
+        <div className="bg-surface border border-border2 rounded-2xl p-8">
+          <div className="text-lg font-semibold mb-6">Crear cuenta</div>
 
-          <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Nombre</label>
+          <form onSubmit={handleRegister} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Nombre</label>
               <input
                 className="form-input"
                 type="text"
@@ -102,8 +83,8 @@ export default function Register() {
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Email</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Email</label>
               <input
                 className="form-input"
                 type="email"
@@ -115,8 +96,8 @@ export default function Register() {
               />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>Contraseña</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted font-medium">Contraseña</label>
               <input
                 className="form-input"
                 type="password"
@@ -129,27 +110,23 @@ export default function Register() {
             </div>
 
             {error && (
-              <div style={{
-                background: 'var(--red-bg)', border: '1px solid rgba(255,77,109,0.3)',
-                borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--red)',
-              }}>
+              <div className="bg-red-bg border border-red/30 rounded-sm px-3.5 py-2.5 text-sm text-red">
                 {error}
               </div>
             )}
 
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary w-full justify-center mt-1"
               disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
             >
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
           </form>
 
-          <div style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--muted)' }}>
+          <div className="mt-5 text-center text-sm text-muted">
             ¿Ya tenés cuenta?{' '}
-            <Link href="/login" style={{ color: 'var(--accent2)', textDecoration: 'none', fontWeight: 500 }}>
+            <Link href="/login" className="text-accent2 no-underline font-medium">
               Iniciar sesión
             </Link>
           </div>

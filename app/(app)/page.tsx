@@ -21,7 +21,6 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchTrades() }, [])
 
   const handleDelete = async (id: string) => {
@@ -69,7 +68,7 @@ export default function Dashboard() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}>
+    <div className="flex flex-col flex-1 overflow-auto">
       <div className="page-header">
         <div>
           <div className="page-title">{t('dash_title')}</div>
@@ -82,17 +81,17 @@ export default function Dashboard() {
 
       <div className="content">
         {/* Metrics */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
+        <div className="grid grid-cols-4 gap-3.5 mb-6">
           {metricCards.map((card, i) => (
-            <div key={i} className="card" style={{ cursor: 'pointer' }}>
-              <div style={{ fontSize: 11, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 500, marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div key={i} className="card cursor-pointer">
+              <div className="text-[11px] text-(--muted) uppercase tracking-[0.8px] font-medium mb-2.5 flex items-center justify-between">
                 {card.label}
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: card.dot === 'amber' ? 'var(--amber)' : 'var(--green)', display: 'inline-block' }} />
+                <span className={`w-1.5 h-1.5 rounded-full inline-block ${card.dot === 'amber' ? 'bg-(--amber)' : 'bg-(--green)'}`} />
               </div>
-              <div style={{ fontSize: 26, fontWeight: 600, fontFamily: 'var(--mono)', lineHeight: 1, marginBottom: 6, color: (card as {valueColor?: string}).valueColor ?? 'var(--text)' }}>
+              <div className={`text-2xl font-semibold font-mono leading-none mb-1.5 ${(card as {valueColor?: string}).valueColor ? `text-[${(card as {valueColor?: string}).valueColor}]` : 'text-(--text)'}`}>
                 {loading ? '...' : card.value}
               </div>
-              <div style={{ fontSize: 12, color: card.deltaType === 'up' ? 'var(--green)' : card.deltaType === 'down' ? 'var(--red)' : 'var(--muted)' }}>
+              <div className={`text-xs ${card.deltaType === 'up' ? 'text-(--green)' : card.deltaType === 'down' ? 'text-(--red)' : 'text-(--muted)'}`}>
                 {card.delta}
               </div>
             </div>
@@ -100,43 +99,43 @@ export default function Dashboard() {
         </div>
 
         {/* Charts */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14, marginBottom: 24 }}>
+        <div className="grid grid-cols-[2fr_1fr] gap-3.5 mb-6">
           <div className="card">
-            <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{t('dash_equity')}</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>{t('dash_equity_sub')}</div>
+            <div className="text-[13px] font-medium mb-1">{t('dash_equity')}</div>
+            <div className="text-[12px] text-(--muted) mb-3">{t('dash_equity_sub')}</div>
             <EquityCurve trades={trades} />
           </div>
           <div className="card">
-            <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{t('dash_winloss')}</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{t('dash_winloss_sub')}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <div style={{ position: 'relative', width: 110, height: 110, flexShrink: 0 }}>
-                <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#1a1a24" strokeWidth="12" />
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#00d68f" strokeWidth="12" strokeDasharray={`${winArc} ${circ - winArc}`} strokeLinecap="round" />
-                  <circle cx="50" cy="50" r="38" fill="none" stroke="#ff4d6d" strokeWidth="12" strokeDasharray={`${lossArc} ${circ - lossArc}`} strokeDashoffset={-winArc} strokeLinecap="round" />
+            <div className="text-sm font-medium mb-1">{t('dash_winloss')}</div>
+            <div className="text-xs text-(--muted) mb-4">{t('dash_winloss_sub')}</div>
+            <div className="flex items-center gap-5">
+              <div className="relative w-27.5 h-27.5 shrink-0">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="38" fill="none" className="stroke-(--surface2)" strokeWidth="12" />
+                  <circle cx="50" cy="50" r="38" fill="none" className="stroke-(--green)" strokeWidth="12" strokeDasharray={`${winArc} ${circ - winArc}`} strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="38" fill="none" className="stroke-(--red)" strokeWidth="12" strokeDasharray={`${lossArc} ${circ - lossArc}`} strokeDashoffset={-winArc} strokeLinecap="round" />
                 </svg>
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 20, fontWeight: 600, fontFamily: 'var(--mono)', color: 'var(--green)' }}>{m.winRate}%</div>
-                  <div style={{ fontSize: 10, color: 'var(--muted)' }}>win rate</div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div className="text-xl font-semibold font-mono text-(--green)">{m.winRate}%</div>
+                  <div className="text-[10px] text-(--muted)">win rate</div>
                 </div>
               </div>
-              <div style={{ flex: 1 }}>
+              <div className="flex-1">
                 {[
                   { label: t('dash_wins'),   value: m.wins,   color: 'var(--green)', cls: 'pnl-positive' },
                   { label: t('dash_losses'), value: m.losses, color: 'var(--red)',   cls: 'pnl-negative' },
                 ].map(row => (
-                  <div key={row.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center' }}>
-                      <div style={{ width: 8, height: 8, borderRadius: 2, background: row.color, marginRight: 8 }} />
+                  <div key={row.label} className="flex items-center justify-between mb-2.5">
+                    <div className="text-xs text-(--muted) flex items-center">
+                      <div className={`w-2 h-2 rounded-[2px] mr-2 bg-[${row.color}]`} />
                       {row.label}
                     </div>
-                    <div className={row.cls} style={{ fontSize: 13, fontWeight: 500 }}>{row.value}</div>
+                    <div className={`${row.cls} text-sm font-medium`}>{row.value}</div>
                   </div>
                 ))}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 12, color: 'var(--muted)' }}>{t('dash_pnl_net')}</div>
-                  <div className={m.totalPnl >= 0 ? 'pnl-positive' : 'pnl-negative'} style={{ fontSize: 13, fontWeight: 500 }}>{formatPnl(m.totalPnl)}</div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-(--border)">
+                  <div className="text-xs text-(--muted)">{t('dash_pnl_net')}</div>
+                  <div className={`${m.totalPnl >= 0 ? 'pnl-positive' : 'pnl-negative'} text-sm font-medium`}>{formatPnl(m.totalPnl)}</div>
                 </div>
               </div>
             </div>
@@ -144,14 +143,14 @@ export default function Dashboard() {
         </div>
 
         {/* Recent trades */}
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: 13, fontWeight: 500 }}>{t('dash_recent')}</div>
-            <a href="/journal" style={{ textDecoration: 'none' }}>
+        <div className="bg-(--surface) border border-(--border) rounded-(--radius) overflow-hidden">
+          <div className="p-4 border-b border-(--border) flex items-center justify-between">
+            <div className="text-sm font-medium">{t('dash_recent')}</div>
+            <a href="/journal" className="no-underline">
               <button className="btn btn-ghost btn-sm">{t('dash_see_all')}</button>
             </a>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.2fr 0.5fr', alignItems: 'center', padding: '10px 20px', fontSize: 11, color: 'var(--muted)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.7px' }}>
+          <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr_0.5fr] items-center p-[10px_20px] text-[11px] text-(--muted) font-medium uppercase tracking-[0.7px]">
             <div>{t('dash_asset')}</div><div>{t('dash_direction')}</div><div>{t('dash_risk')}</div><div>{t('dash_pnl_usd')}</div><div>{t('dash_date')}</div><div />
           </div>
           {loading ? (
@@ -166,15 +165,15 @@ export default function Dashboard() {
             const pnl = tr.pnl ?? 0
             const dt  = tr.trade_date ? new Date(tr.trade_date).toLocaleDateString(locale === 'es' ? 'es-AR' : 'en-US', { day: '2-digit', month: 'short' }) : '—'
             return (
-              <div key={tr.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1.2fr 0.5fr', alignItems: 'center', padding: '12px 20px', borderTop: '1px solid var(--border)', fontSize: 12 }}>
-                <div><div style={{ fontWeight: 500, fontSize: 13 }}>{tr.asset}</div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{dt}</div></div>
+              <div key={tr.id} className="grid grid-cols-[2fr_1fr_1fr_1fr_1.2fr_0.5fr] items-center p-[12px_20px] border-t border-(--border) text-xs">
+                <div><div className="font-medium text-sm">{tr.asset}</div><div className="text-[11px] text-(--muted)">{dt}</div></div>
                 <div><span className={`badge badge-${tr.direction}`}>{tr.direction.toUpperCase()}</span></div>
-                <div className="mono">{tr.pct ? `${tr.pct}%` : '—'}</div>
+                <div className="font-mono">{tr.pct ? `${tr.pct}%` : '—'}</div>
                 <div className={pnl >= 0 ? 'pnl-positive' : 'pnl-negative'}>{formatPnl(pnl)}</div>
-                <div style={{ color: 'var(--muted)', fontSize: 12 }}>{dt}</div>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <button className="btn btn-ghost btn-sm" style={{ padding: '3px 7px', fontSize: 10 }} onClick={() => { setEditTrade(tr); setModalOpen(true) }}>✎</button>
-                  <button className="btn btn-danger btn-sm" style={{ padding: '3px 7px', fontSize: 10 }} onClick={() => handleDelete(tr.id)}>✕</button>
+                <div className="text-(--muted) text-xs">{dt}</div>
+                <div className="flex gap-1">
+                  <button className="btn btn-ghost p-0.75! px-1.75! text-[10px]" onClick={() => { setEditTrade(tr); setModalOpen(true) }}>✎</button>
+                  <button className="btn btn-danger p-0.75! px-1.75! text-[10px]" onClick={() => handleDelete(tr.id)}>✕</button>
                 </div>
               </div>
             )

@@ -8,17 +8,25 @@ const CONFIG_KEY = 'tradefolio_config_v1'
 
 type Config = { name: string; capital: number; currency: string }
 
+const DEFAULT_CONFIG: Config = { name: 'Trader', capital: 0, currency: 'USD' }
+
+function loadInitialConfig(): Config {
+  if (typeof window === 'undefined') return DEFAULT_CONFIG
+  try {
+    const raw = localStorage.getItem(CONFIG_KEY)
+    return raw ? JSON.parse(raw) : DEFAULT_CONFIG
+  } catch {
+    return DEFAULT_CONFIG
+  }
+}
+
 export default function Settings() {
   const { t, locale, setLocale } = useT()
-  const [config, setConfig]         = useState<Config>({ name: 'Trader', capital: 0, currency: 'USD' })
+  const [config, setConfig]         = useState<Config>(loadInitialConfig)
   const [tradeCount, setTradeCount] = useState(0)
   const [saved, setSaved]           = useState(false)
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CONFIG_KEY)
-      if (raw) setConfig(JSON.parse(raw))
-    } catch {}
     fetch('/api/trades').then(r => r.json()).then(data => setTradeCount(Array.isArray(data) ? data.length : 0)).catch(() => {})
   }, [])
 
@@ -39,7 +47,7 @@ export default function Settings() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}>
+    <div className="flex flex-col flex-1 overflow-auto">
       <div className="page-header">
         <div>
           <div className="page-title">{t('settings_title')}</div>
@@ -49,18 +57,18 @@ export default function Settings() {
 
       <div className="content">
         {/* Profile */}
-        <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 16 }}>{t('settings_profile')}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-            <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>{t('settings_name')}</label>
+        <div className="card max-w-120 mb-4">
+          <div className="text-sm font-medium mb-4">{t('settings_profile')}</div>
+          <div className="flex flex-col gap-1.5 mb-3.5">
+            <label className="text-xs text-muted font-medium">{t('settings_name')}</label>
             <input className="form-input" type="text" value={config.name} onChange={e => setConfig(c => ({ ...c, name: e.target.value }))} placeholder="Trader" />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-            <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>{t('settings_capital')}</label>
+          <div className="flex flex-col gap-1.5 mb-3.5">
+            <label className="text-xs text-muted font-medium">{t('settings_capital')}</label>
             <input className="form-input" type="number" step="0.01" value={config.capital || ''} onChange={e => setConfig(c => ({ ...c, capital: parseFloat(e.target.value) || 0 }))} placeholder="1000" />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
-            <label style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500 }}>{t('settings_currency')}</label>
+          <div className="flex flex-col gap-1.5 mb-5">
+            <label className="text-xs text-muted font-medium">{t('settings_currency')}</label>
             <select className="form-select" value={config.currency} onChange={e => setConfig(c => ({ ...c, currency: e.target.value }))}>
               <option value="USD">USD — Dólar</option>
               <option value="ARS">ARS — Peso argentino</option>
@@ -74,16 +82,15 @@ export default function Settings() {
         </div>
 
         {/* Language */}
-        <div className="card" style={{ maxWidth: 480, marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{t('settings_language')}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{t('settings_lang_sub')}</div>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div className="card max-w-120 mb-4">
+          <div className="text-sm font-medium mb-1">{t('settings_language')}</div>
+          <div className="text-xs text-muted mb-4">{t('settings_lang_sub')}</div>
+          <div className="flex gap-2">
             {(['es', 'en'] as Locale[]).map(lang => (
               <button
                 key={lang}
                 onClick={() => setLocale(lang)}
-                className={locale === lang ? 'btn btn-primary' : 'btn btn-ghost'}
-                style={{ minWidth: 80 }}
+                className={`${locale === lang ? 'btn btn-primary' : 'btn btn-ghost'} min-w-20`}
               >
                 {lang === 'es' ? '🇦🇷 Español' : '🇺🇸 English'}
               </button>
@@ -92,23 +99,23 @@ export default function Settings() {
         </div>
 
         {/* Database */}
-        <div className="card" style={{ maxWidth: 480 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{t('settings_db')}</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>{t('settings_db_sub')}</div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+        <div className="card max-w-120">
+          <div className="text-sm font-medium mb-1">{t('settings_db')}</div>
+          <div className="text-xs text-muted mb-4">{t('settings_db_sub')}</div>
+          <div className="flex items-center justify-between py-3 border-b border-border">
             <div>
-              <div style={{ fontSize: 13, fontWeight: 500 }}>{t('settings_trades')}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{tradeCount} trades</div>
+              <div className="text-sm font-medium">{t('settings_trades')}</div>
+              <div className="text-xs text-muted">{tradeCount} trades</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--green)', background: 'rgba(0,214,143,0.08)', border: '1px solid rgba(0,214,143,0.15)', padding: '4px 10px', borderRadius: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
+            <div className="flex items-center gap-1.5 text-xs text-green bg-green-bg border border-green/15 px-2.5 py-1 rounded-xs">
+              <div className="w-1.5 h-1.5 rounded-full bg-green" />
               {t('settings_active')}
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0' }}>
+          <div className="flex items-center justify-between py-3">
             <div>
-              <div style={{ fontSize: 13, fontWeight: 500 }}>{t('settings_export')}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)' }}>{t('settings_export_sub')}</div>
+              <div className="text-sm font-medium">{t('settings_export')}</div>
+              <div className="text-xs text-muted">{t('settings_export_sub')}</div>
             </div>
             <button className="btn btn-ghost btn-sm" onClick={exportData}>{t('settings_export_btn')}</button>
           </div>

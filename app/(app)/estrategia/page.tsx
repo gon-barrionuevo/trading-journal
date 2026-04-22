@@ -60,7 +60,7 @@ export default function Estrategia() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'auto' }}>
+    <div className="flex flex-col flex-1 overflow-auto">
       <div className="page-header">
         <div>
           <div className="page-title">{t('strategy_title')}</div>
@@ -68,10 +68,10 @@ export default function Estrategia() {
         </div>
       </div>
 
-      <div className="content" style={{ maxWidth: 680 }}>
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', marginBottom: 16 }}>
+      <div className="content max-w-170">
+        <div className="bg-surface border border-border rounded-default overflow-hidden mb-4">
           {loading ? (
-            <div style={{ padding: '24px 20px', color: 'var(--muted)', fontSize: 13 }}>...</div>
+            <div className="px-5 py-6 text-sm text-muted">...</div>
           ) : rules.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">📋</div>
@@ -80,53 +80,51 @@ export default function Estrategia() {
             </div>
           ) : rules.map((rule, index) => (
             <div key={rule.id}
-              style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 20px', borderBottom: index < rules.length - 1 ? '1px solid var(--border)' : 'none', transition: 'background 0.1s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface2)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              className={`flex items-start gap-3.5 px-5 py-4 transition-colors duration-100 hover:bg-surface2 ${
+                index < rules.length - 1 ? 'border-b border-border' : ''
+              }`}
             >
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(124,106,255,0.12)', border: '1px solid rgba(124,106,255,0.25)', color: 'var(--accent2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 600, fontFamily: 'var(--mono)', flexShrink: 0, marginTop: 1 }}>
+              <div className="w-7 h-7 rounded-full bg-[rgba(124,106,255,0.12)] border border-[rgba(124,106,255,0.25)] text-accent2 flex items-center justify-center text-xs font-semibold mono shrink-0 mt-px">
                 {index + 1}
               </div>
-              <div style={{ flex: 1 }}>
+              <div className="flex-1">
                 {editId === rule.id ? (
                   <>
                     <textarea autoFocus value={editText}
                       onChange={e => { setEditText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
                       onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleEditSave(rule.id); if (e.key === 'Escape') { setEditId(null); setEditText('') } }}
-                      style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--accent)', borderRadius: 'var(--radius-sm)', outline: 'none', fontFamily: 'var(--font)', fontSize: 14, color: 'var(--text)', lineHeight: 1.6, resize: 'none', padding: '8px 12px', overflow: 'hidden' }}
+                      className="w-full bg-surface2 border border-accent rounded-sm outline-none text-sm text-text leading-relaxed resize-none px-3 py-2 overflow-hidden"
                     />
-                    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <div className="flex gap-2 mt-2">
                       <button onClick={() => handleEditSave(rule.id)} className="btn btn-primary btn-sm">{t('strategy_save')}</button>
                       <button onClick={() => { setEditId(null); setEditText('') }} className="btn btn-ghost btn-sm">{t('strategy_cancel')}</button>
                     </div>
                   </>
                 ) : (
-                  <p style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6, margin: 0 }}>{rule.content}</p>
+                  <p className="text-sm text-text leading-relaxed m-0">{rule.content}</p>
                 )}
               </div>
               {editId !== rule.id && (
-                <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                  <button onClick={() => { setEditId(rule.id); setEditText(rule.content) }} className="btn btn-ghost btn-sm" style={{ padding: '4px 8px', fontSize: 13 }}>✏️</button>
-                  <button onClick={() => handleDelete(rule.id)} className="btn btn-danger btn-sm" style={{ padding: '4px 8px', fontSize: 13 }}>🗑️</button>
+                <div className="flex gap-1 shrink-0">
+                  <button onClick={() => { setEditId(rule.id); setEditText(rule.content) }} className="btn btn-ghost btn-sm px-2 py-1 text-sm">✏️</button>
+                  <button onClick={() => handleDelete(rule.id)} className="btn btn-danger btn-sm px-2 py-1 text-sm">🗑️</button>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)', padding: '16px 20px' }}>
-          <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 500, marginBottom: 10 }}>{t('strategy_new')}</div>
+        <div className="bg-surface border border-border rounded-default px-5 py-4">
+          <div className="text-xs text-muted font-medium mb-2.5">{t('strategy_new')}</div>
           <textarea value={newText}
             onChange={e => { setNewText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.max(80, e.target.scrollHeight) + 'px' }}
             onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleAdd() }}
             placeholder={t('strategy_placeholder')}
-            style={{ width: '100%', background: 'var(--surface2)', border: '1px solid var(--border2)', borderRadius: 'var(--radius-sm)', outline: 'none', fontFamily: 'var(--font)', fontSize: 14, color: 'var(--text)', lineHeight: 1.6, resize: 'none', height: 80, padding: '10px 12px', overflow: 'hidden', transition: 'border-color 0.15s' }}
-            onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-            onBlur={e => (e.target.style.borderColor = 'var(--border2)')}
+            className="w-full bg-surface2 border border-border2 rounded-sm outline-none text-sm text-text leading-relaxed resize-none h-20 px-3 py-2.5 overflow-hidden transition-colors duration-150 focus:border-accent"
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-            <span style={{ fontSize: 12, color: 'var(--muted2)' }}>{t('strategy_hint')}</span>
-            <button onClick={handleAdd} disabled={saving || !newText.trim()} className="btn btn-primary btn-sm" style={{ opacity: saving || !newText.trim() ? 0.5 : 1 }}>
+          <div className="flex justify-between items-center mt-2.5">
+            <span className="text-xs text-muted2">{t('strategy_hint')}</span>
+            <button onClick={handleAdd} disabled={saving || !newText.trim()} className="btn btn-primary btn-sm disabled:opacity-50">
               {saving ? t('strategy_saving') : t('strategy_add')}
             </button>
           </div>
@@ -134,7 +132,7 @@ export default function Estrategia() {
       </div>
 
       {toast && (
-        <div style={{ position: 'fixed', bottom: 24, right: 24, background: '#1a1a24', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '12px 18px', fontSize: 13, color: '#f0f0f5', display: 'flex', alignItems: 'center', gap: 8, zIndex: 200 }}>
+        <div className="toast show">
           <span>{toast}</span>
         </div>
       )}
